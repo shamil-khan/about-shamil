@@ -1,0 +1,13 @@
+# .prettierrc.toml
+
+tabWidth = 2
+printWidth = 80
+trailingComma = "all"
+bracketSpacing = true
+semi = true
+singleQuote = true
+jsxSingleQuote = true
+arrowParens = "always"
+objectWrap = "preserve"
+bracketSameLine = true
+endOfLine = "auto"

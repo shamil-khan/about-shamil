@@ -1,0 +1,13 @@
+**/.git
+**/node_modules
+**/dist
+**/public
+**/.DS_Store
+**/.vscode
+readme.md
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+
+
