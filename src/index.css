@@ -1,68 +1,98 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import 'tailwindcss';
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@theme {
+  /* 1. Static Variables (Global Tokens) */
+  --color-brand: #646cff;
+  --color-brand-hover: #535bf2;
+  --color-react: #61dafb;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+  /* These act as defaults that we will override in the Base layer */
+  --color-bg: #ffffff;
+  --color-text: #213547;
+  --color-button-bg: #f9f9f9;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
+@layer base {
+  /* 2. Theme Logic (Media Queries and Class Overrides) */
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    /* Default / System Light */
+    --color-bg: #ffffff;
+    --color-text: #213547;
+    --color-button-bg: #f9f9f9;
+
+    /* Automatic System Dark Mode */
+    @media (prefers-color-scheme: dark) {
+      --color-bg: #242424;
+      --color-text: rgba(255, 255, 255, 0.87);
+      --color-button-bg: #1a1a1a;
+    }
   }
-  a:hover {
-    color: #747bff;
+
+  /* Manual Class Overrides for your Toggle Hook */
+  .dark {
+    --color-bg: #242424;
+    --color-text: rgba(255, 255, 255, 0.87);
+    --color-button-bg: #1a1a1a;
   }
+
+  .light {
+    --color-bg: #ffffff;
+    --color-text: #213547;
+    --color-button-bg: #f9f9f9;
+  }
+
+  /* 3. Global Styles & Centering */
+  :root {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    /* Fixed centering logic */
+    @apply m-0 flex min-h-svh w-full items-center justify-center overflow-x-hidden;
+  }
+
+  #root {
+    /* Ensures children (buttons, text) are centered in a column */
+    @apply flex w-full max-w-[1280px] flex-col items-center justify-center p-8 text-center;
+  }
+
+  h1 {
+    @apply mb-8 text-5xl font-bold leading-[1.1];
+  }
+
+  a {
+    @apply font-medium text-brand no-underline transition-colors hover:text-brand-hover;
+  }
+
   button {
-    background-color: #f9f9f9;
+    @apply cursor-pointer rounded-lg border border-transparent px-[1.2em] py-[0.6em] text-base font-medium transition-[border-color,background-color] duration-250;
+    background-color: var(--color-button-bg);
   }
+
+  button:hover {
+    border-color: var(--color-brand);
+  }
+}
+
+/* 4. Animations */
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.logo-spin {
+  animation: logo-spin infinite 20s linear;
 }
