@@ -61,8 +61,8 @@
   }
 
   #root {
-    /* Ensures children (buttons, text) are centered in a column */
-    @apply flex w-full max-w-7xl flex-col items-center justify-center p-6 text-center;
+    /* App-level container layout */
+    @apply flex w-full min-w-0 max-w-7xl flex-col items-stretch justify-start p-6 text-center;
   }
 
   h1 {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Printer } from 'lucide-react';
 import type { CVData } from '@/types/cv';
 import { ThemeToggle } from './ThemeToggle';
@@ -12,6 +12,7 @@ const PRINT_TITLE = 'Shamil-Ahmed-CV';
 export function CV() {
   const [data] = useState<CVData>(cvData as CVData);
   const [isDark, setIsDark] = useState(false);
+  const screenLayoutRef = useRef<HTMLDivElement>(null);
   const { printSourceRef, printOutputRef, handlePrint } = useCvPrintPages({
     cvTitle: PRINT_TITLE,
     rebuildSignal: data,
@@ -30,6 +31,16 @@ export function CV() {
     load();
   }, []);
 
+  useEffect(() => {
+    const screenLayout = screenLayoutRef.current;
+    if (!screenLayout) {
+      return;
+    }
+
+    // Always start panning from the left edge on initial render.
+    screenLayout.scrollLeft = 0;
+  }, []);
+
   const toggleTheme = () => {
     setIsDark(!isDark);
     document.documentElement.classList.toggle('dark');
@@ -37,8 +48,8 @@ export function CV() {
 
   return (
     <div className='min-h-screen cv-theme-page py-4 px-4 cv-transition'>
-      <div className='cv-screen-layout'>
-        <div className='max-w-[210mm] mx-auto relative'>
+      <div className='cv-screen-layout' ref={screenLayoutRef}>
+        <div className='cv-screen-canvas relative'>
           <div className='cv-action-dock print:hidden'>
             <button
               type='button'
