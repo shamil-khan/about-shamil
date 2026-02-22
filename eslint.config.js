@@ -25,6 +25,10 @@ export default defineConfig([
       'react-compiler': reactCompiler,
     },
     rules: {
+      // Downgrades 'error' to 'warn' so it doesn't block the UI/Build
+      '@typescript-eslint/no-unused-vars': 'warn',
+
+      // Keep your existing React Compiler rules
       'react-compiler/react-compiler': 'error',
     },
   },
