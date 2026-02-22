@@ -33,4 +33,10 @@ export default defineConfig([
     },
   },
   eslintPluginPrettierRecommended,
+  {
+    rules: {
+      'prettier/prettier': 'warn',
+    },
+  },
 ]);
+
