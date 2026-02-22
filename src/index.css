@@ -62,7 +62,7 @@
 
   #root {
     /* Ensures children (buttons, text) are centered in a column */
-    @apply flex w-full max-w-[1280px] flex-col items-center justify-center p-8 text-center;
+    @apply flex w-full max-w-7xl flex-col items-center justify-center p-6 text-center;
   }
 
   h1 {

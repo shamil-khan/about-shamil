@@ -1,0 +1,227 @@
+/* Hidden/measurement print layers */
+.cv-print-source {
+  position: absolute;
+  top: 0;
+  left: -99999px;
+  width: 190mm;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.cv-print-output {
+  position: absolute;
+  top: 0;
+  left: -99999px;
+  width: 210mm;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* A4 print sheet model used for off-screen pagination and print rendering */
+.cv-print-sheet {
+  position: relative;
+  width: 210mm;
+  min-height: 297mm;
+  height: 297mm;
+  background: #ffffff;
+  color: #1f2937;
+  overflow: hidden;
+}
+
+.cv-print-sheet-header {
+  position: absolute;
+  top: 10mm;
+  left: 10mm;
+  right: 10mm;
+  min-height: 6mm;
+  border-bottom: 1px solid #94a3b8;
+  padding: 0 0 2mm;
+  color: #475569;
+  font-family: 'Roboto', sans-serif;
+}
+
+.cv-print-sheet-title {
+  display: block;
+  text-align: center;
+  font-size: 10pt;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.cv-print-sheet-date {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 9pt;
+}
+
+.cv-print-sheet-content {
+  position: absolute;
+  top: 24mm;
+  bottom: 18mm;
+  left: 10mm;
+  right: 10mm;
+  overflow: hidden;
+}
+
+.cv-print-sheet-footer {
+  position: absolute;
+  left: 10mm;
+  right: 10mm;
+  bottom: 8mm;
+  padding-top: 2mm;
+  border-top: 1px solid #94a3b8;
+  text-align: right;
+  color: #475569;
+  font-size: 9pt;
+  font-family: 'Roboto', sans-serif;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  :root,
+  .dark {
+    --cv-page-bg: #ffffff !important;
+    --cv-card-bg: #ffffff !important;
+    --cv-text-heading: #111827 !important;
+    --cv-text-subtext: #374151 !important;
+    --cv-text-body: #1f2937 !important;
+    --cv-text-muted: #4b5563 !important;
+    --cv-text-accent: #dc2626 !important;
+    --cv-border: #1f2937 !important;
+    --cv-separator: #6b7280 !important;
+    --cv-link-hover: #dc2626 !important;
+    --cv-toggle-bg: #ffffff !important;
+    --cv-toggle-border: #d1d5db !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: auto !important;
+    width: auto !important;
+    overflow: visible !important;
+    align-items: initial !important;
+    justify-content: initial !important;
+  }
+
+  #root {
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: initial !important;
+    align-items: initial !important;
+    justify-content: initial !important;
+  }
+
+  .cv-theme-page {
+    min-height: auto !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  .cv-page,
+  .cv-container,
+  .cv-card {
+    background: white !important;
+    color: #1f2937 !important;
+    box-shadow: none !important;
+  }
+
+  .cv-screen-layout,
+  .cv-print-source {
+    display: none !important;
+  }
+
+  .cv-print-output {
+    display: block !important;
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: 210mm;
+    margin: 0 auto;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  .cv-print-sheet {
+    background: white !important;
+    color: #1f2937 !important;
+    break-after: page;
+    page-break-after: always;
+    box-shadow: none !important;
+  }
+
+  .cv-print-sheet:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .cv-print-sheet-header {
+    border-bottom: 1px solid #94a3b8;
+  }
+
+  .cv-print-sheet-title {
+    color: #475569;
+  }
+
+  .cv-print-sheet-date {
+    color: #475569;
+  }
+
+  .cv-print-sheet-content {
+    overflow: hidden !important;
+  }
+
+  .cv-print-sheet-footer {
+    border-top: 1px solid #94a3b8;
+    color: #475569;
+  }
+
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-md {
+    box-shadow: none !important;
+  }
+
+  .cv-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .cv-entry {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  h3,
+  h4 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  a {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+
+  .cv-page {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+}

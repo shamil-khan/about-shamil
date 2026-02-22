@@ -1,0 +1,143 @@
+/* CV Theme Variables */
+:root {
+  --cv-page-bg: #f3f4f6;
+  --cv-card-bg: #ffffff;
+  --cv-text-heading: #0f172a;
+  --cv-text-subtext: #475569;
+  --cv-text-body: #334155;
+  --cv-text-muted: #64748b;
+  --cv-text-accent: #dc2626;
+  --cv-border: #1f2937;
+  --cv-separator: #94a3b8;
+  --cv-link-hover: #b91c1c;
+  --cv-toggle-bg: #ffffff;
+  --cv-toggle-border: #d1d5db;
+}
+
+.dark {
+  --cv-page-bg: #0b1220;
+  --cv-card-bg: #121c2f;
+  --cv-text-heading: #f4f7fb;
+  --cv-text-subtext: #9fb0c8;
+  --cv-text-body: #ccd7e6;
+  --cv-text-muted: #7f90a9;
+  --cv-text-accent: #f29595;
+  --cv-border: #30415b;
+  --cv-separator: #526685;
+  --cv-link-hover: #f5adad;
+  --cv-toggle-bg: #1b273c;
+  --cv-toggle-border: #3a4b68;
+}
+
+/* Screen styles */
+@media screen {
+  .cv-page {
+    max-width: 210mm;
+    min-height: 297mm;
+  }
+}
+
+/* Base typography and semantic theme helpers */
+.cv-container {
+  font-family: 'Source Sans 3', 'Source Sans Pro', sans-serif;
+  background-color: var(--cv-card-bg);
+  color: var(--cv-text-body);
+}
+
+.cv-header {
+  font-family: 'Roboto', sans-serif;
+}
+
+.cv-theme-page {
+  background-color: var(--cv-page-bg);
+}
+
+.cv-theme-card {
+  background-color: var(--cv-card-bg);
+  color: var(--cv-text-body);
+}
+
+.cv-theme-heading {
+  color: var(--cv-text-heading);
+}
+
+.cv-theme-subtext {
+  color: var(--cv-text-subtext);
+}
+
+.cv-theme-body {
+  color: var(--cv-text-body);
+}
+
+.cv-theme-muted {
+  color: var(--cv-text-muted);
+}
+
+.cv-theme-accent {
+  color: var(--cv-text-accent);
+}
+
+.cv-theme-border {
+  border-color: var(--cv-border);
+}
+
+.cv-theme-separator {
+  color: var(--cv-separator);
+}
+
+.cv-theme-link {
+  color: inherit;
+  transition: color 0.2s ease;
+}
+
+.cv-theme-link:hover {
+  color: var(--cv-link-hover);
+}
+
+.cv-theme-toggle {
+  background-color: var(--cv-toggle-bg);
+  border: 0.5px solid var(--cv-toggle-border);
+}
+
+.cv-action-dock {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  z-index: 20;
+  display: flex;
+  gap: 6px;
+}
+
+/* Backward-compatible aliases */
+.cv-card {
+  background-color: var(--cv-card-bg);
+}
+
+.cv-text-primary {
+  color: var(--cv-text-heading);
+}
+
+.cv-text-secondary {
+  color: var(--cv-text-subtext);
+}
+
+.cv-accent-text {
+  color: var(--cv-text-accent);
+}
+
+.cv-border {
+  border-color: var(--cv-border);
+}
+
+/* Compact line heights */
+.cv-compact {
+  line-height: 1.35;
+}
+
+/* Smooth transitions */
+.cv-transition {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}

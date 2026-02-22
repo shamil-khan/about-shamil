@@ -1,0 +1,166 @@
+{
+  "header": {
+    "name": "Simple Name",
+    "titles": [
+      "Principal Software Engineer",
+      "Platform Architect",
+      "AI Product Builder"
+    ],
+    "location": "Austin, TX, USA",
+    "phone": "+1 (512) 555-0189",
+    "email": "simple.name@example.com",
+    "linkedin": "linkedin.com/in/simple-name",
+    "github": "github.com/simple-name",
+    "twitter": "@simplebuilds"
+  },
+  "summary": "Product-minded software engineer with 14+ years of experience designing cloud-native systems and leading cross-functional teams. Strong background in distributed architecture, frontend and backend delivery, and practical AI integrations. Known for turning ambiguous requirements into reliable, maintainable platforms that scale with business growth.",
+  "skills": [
+    {
+      "category": "Programming",
+      "items": ["TypeScript", "JavaScript", "Go", "Python", "C#", "SQL"]
+    },
+    {
+      "category": "Frameworks",
+      "items": ["React", "Next.js", "Node.js", "NestJS", ".NET", "Express"]
+    },
+    {
+      "category": "Cloud & DevOps",
+      "items": [
+        "AWS",
+        "Docker",
+        "Kubernetes",
+        "Terraform",
+        "GitHub Actions",
+        "ArgoCD"
+      ]
+    },
+    {
+      "category": "Data & Messaging",
+      "items": ["PostgreSQL", "Redis", "MongoDB", "Kafka", "RabbitMQ"]
+    },
+    {
+      "category": "Architecture",
+      "items": [
+        "Microservices",
+        "Domain-Driven Design",
+        "Event-Driven Systems",
+        "API Design"
+      ]
+    },
+    {
+      "category": "AI & Automation",
+      "items": [
+        "OpenAI API",
+        "RAG Pipelines",
+        "Prompt Engineering",
+        "Workflow Automation"
+      ]
+    },
+    {
+      "category": "Leadership",
+      "items": [
+        "Technical Mentoring",
+        "Roadmap Planning",
+        "Stakeholder Communication",
+        "Hiring"
+      ]
+    }
+  ],
+  "experience": [
+    {
+      "company": "Northstar Labs",
+      "location": "Austin, TX",
+      "position": "Principal Software Engineer",
+      "duration": "2022 -- Present",
+      "highlights": [
+        "Led platform modernization from monolith to domain-aligned services, reducing deployment time by 65%.",
+        "Introduced a unified design system and frontend architecture that improved feature delivery predictability.",
+        "Built AI-assisted support workflows that reduced first-response time by 38%.",
+        "Mentored 9 engineers across backend, frontend, and DevOps tracks."
+      ]
+    },
+    {
+      "company": "Orbit Commerce",
+      "location": "Remote",
+      "position": "Staff Full-Stack Engineer",
+      "duration": "2019 -- 2022",
+      "highlights": [
+        "Designed an event-driven order pipeline processing 2M+ events per day with strong observability.",
+        "Owned checkout reliability initiatives that improved conversion by 11% and lowered incident rate.",
+        "Implemented performance budgets and CI checks to keep critical pages under target load times."
+      ]
+    },
+    {
+      "company": "Summit Financial Tech",
+      "location": "Chicago, IL",
+      "position": "Senior Software Engineer",
+      "duration": "2016 -- 2019",
+      "highlights": [
+        "Developed secure APIs for lending and risk tools used by internal analyst teams.",
+        "Migrated legacy services to containerized deployments with blue/green rollout patterns.",
+        "Partnered with compliance teams to harden audit trails and reduce reporting gaps."
+      ]
+    },
+    {
+      "company": "Pixel Forge Studio",
+      "location": "New York, NY",
+      "position": "Software Engineer",
+      "duration": "2013 -- 2016",
+      "highlights": [
+        "Built client-facing web applications using React and Node.js for media and retail customers.",
+        "Improved API response times by introducing caching and query optimization strategies.",
+        "Contributed to reusable internal tooling for authentication and deployment templates."
+      ]
+    },
+    {
+      "company": "CodeRiver Solutions",
+      "location": "Boston, MA",
+      "position": "Junior Software Engineer",
+      "duration": "2011 -- 2013",
+      "highlights": [
+        "Implemented features and bug fixes across .NET services and SQL-backed internal tools.",
+        "Automated manual reporting tasks with scripts that saved multiple hours weekly for operations teams."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Northeastern University",
+      "degree": "MS in Software Engineering",
+      "field": "Software Architecture",
+      "duration": "2009 -- 2011",
+      "highlights": [
+        "Graduate Merit Scholarship",
+        "Capstone on distributed service resilience"
+      ]
+    },
+    {
+      "institution": "University of Texas at Dallas",
+      "degree": "BS in Computer Science",
+      "field": "Computer Science",
+      "duration": "2005 -- 2009",
+      "highlights": ["Dean's List", "ACM Student Chapter Lead"]
+    }
+  ],
+  "awards": [
+    {
+      "title": "Engineering Excellence Award",
+      "issuer": "Northstar Labs",
+      "year": "2024"
+    },
+    {
+      "title": "Platform Reliability Champion",
+      "issuer": "Orbit Commerce",
+      "year": "2021"
+    },
+    {
+      "title": "Best Graduate Capstone",
+      "issuer": "Northeastern University",
+      "year": "2011"
+    }
+  ],
+  "additional": {
+    "availability": "2 Weeks Notice",
+    "references": "Available upon request"
+  }
+}
