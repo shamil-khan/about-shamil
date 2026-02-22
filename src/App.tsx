@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useTheme } from './hooks/useTheme';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
+import { useTheme } from '@/hooks/useTheme';
 
 function App() {
   const [count, setCount] = useState(0);
