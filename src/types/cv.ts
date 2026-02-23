@@ -7,6 +7,7 @@ export interface Header {
   linkedin: string;
   github: string;
   twitter: string;
+  photo?: string;
 }
 
 export interface Skill {

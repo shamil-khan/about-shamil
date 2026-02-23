@@ -6,6 +6,12 @@ import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    port: 3311,
+  },
+  preview: {
+    port: 3312,
+  },
   plugins: [
     react({
       babel: {

@@ -1,10 +1,14 @@
-import { CV } from '@/components/cv';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ViewableCVPage, PrintableCVPage } from '@/pages';
 
 function App() {
   return (
-    <main className='min-h-screen cv-theme-page cv-transition'>
-      <CV />
-    </main>
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<ViewableCVPage />} />
+        <Route path='/print' element={<PrintableCVPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

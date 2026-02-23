@@ -1,0 +1,49 @@
+/* Animation utilities for sections */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+/* Bounce animation for scroll indicator */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  50% {
+    transform: translateY(-10px) translateX(-50%);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+/* Section transition helper */
+section {
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+}
+
+/* RTL-specific adjustments */
+[dir="rtl"] .animate-bounce {
+  transform: translateX(50%);
+}
+
+[dir="rtl"] @keyframes bounce {
+  0%, 100% {
+    transform: translateY(0) translateX(50%);
+  }
+  50% {
+    transform: translateY(-10px) translateX(50%);
+  }
+}
