@@ -6,7 +6,7 @@ import {
   DEFAULT_LANGUAGE,
   getLanguageByCode,
   isRTLLanguage,
-} from '@/config/languages';
+} from '@/config';
 
 interface LanguageState {
   language: LanguageCode;

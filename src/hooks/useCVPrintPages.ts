@@ -1,21 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { RefObject } from 'react';
 
-interface UseCvPrintPagesOptions {
+export interface UseCVPrintPagesOptions {
   cvTitle: string;
   rebuildSignal?: unknown;
 }
 
-interface UseCvPrintPagesResult {
+export interface UseCVPrintPagesResult {
   printSourceRef: RefObject<HTMLDivElement | null>;
   printOutputRef: RefObject<HTMLDivElement | null>;
-  handlePrint: () => void;
 }
 
-export function useCvPrintPages({
+export function useCVPrintPages({
   cvTitle,
   rebuildSignal,
-}: UseCvPrintPagesOptions): UseCvPrintPagesResult {
+}: UseCVPrintPagesOptions): UseCVPrintPagesResult {
   const printSourceRef = useRef<HTMLDivElement>(null);
   const printOutputRef = useRef<HTMLDivElement>(null);
   const printDate = useMemo(() => {
@@ -156,10 +155,5 @@ export function useCvPrintPages({
     };
   }, [buildPrintPages, rebuildSignal]);
 
-  const handlePrint = useCallback(() => {
-    buildPrintPages();
-    window.print();
-  }, [buildPrintPages]);
-
-  return { printSourceRef, printOutputRef, handlePrint };
+  return { printSourceRef, printOutputRef };
 }

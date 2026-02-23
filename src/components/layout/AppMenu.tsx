@@ -21,12 +21,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useTheme } from '@/hooks';
 import {
   useLanguageStore,
   selectLanguage,
   selectIsRTL,
   selectLanguages,
+} from '@/store';
+import {
+  useThemeStore,
+  selectTheme,
+  selectSetTheme,
+  selectThemes,
 } from '@/store';
 import { cn } from '@/lib/utils';
 
@@ -41,7 +46,9 @@ interface AppMenuProps {
 }
 
 export function AppMenu({ className }: AppMenuProps) {
-  const { theme, setTheme, themes } = useTheme();
+  const theme = useThemeStore(selectTheme);
+  const setTheme = useThemeStore(selectSetTheme);
+  const themes = selectThemes();
 
   const language = useLanguageStore(selectLanguage);
   const isRTL = useLanguageStore(selectIsRTL);

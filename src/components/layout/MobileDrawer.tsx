@@ -16,8 +16,13 @@ import {
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { useTheme } from '@/hooks';
 import { useLanguageStore, selectLanguage, selectLanguages } from '@/store';
+import {
+  useThemeStore,
+  selectTheme,
+  selectSetTheme,
+  selectThemes,
+} from '@/store';
 import type { AppNavItem } from './AppNavItem';
 import { cn } from '@/lib/utils';
 
@@ -44,7 +49,9 @@ export function MobileDrawer({
   onNavClick,
   side,
 }: MobileDrawerProps) {
-  const { theme, setTheme, themes } = useTheme();
+  const theme = useThemeStore(selectTheme);
+  const setTheme = useThemeStore(selectSetTheme);
+  const themes = selectThemes();
 
   const language = useLanguageStore(selectLanguage);
   const languages = selectLanguages();

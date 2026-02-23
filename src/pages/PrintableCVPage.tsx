@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { CV } from '@/components/cv/CV';
+import { CVPage } from '@/components/cv/CVPage';
 
 export function PrintableCVPage() {
   const handlePrint = () => {
@@ -28,7 +28,7 @@ export function PrintableCVPage() {
 
       {/* Printable Content */}
       <div className='pt-14 print:pt-0'>
-        <CV />
+        <CVPage />
       </div>
     </div>
   );
