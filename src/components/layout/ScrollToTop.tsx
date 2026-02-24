@@ -15,7 +15,7 @@ export function ScrollToTop() {
       variant='outline'
       size='icon'
       className={cn(
-        'fixed bottom-6 inset-e-6 z-40 rounded-full shadow-lg',
+        'fixed bottom-6 inset-e-6 z-40 rounded-full shadow-lg app-theme-scroll-top app-transition',
         'transition-all duration-300',
         isScrolled
           ? 'opacity-100 translate-y-0'

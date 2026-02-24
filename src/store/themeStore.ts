@@ -9,7 +9,7 @@ interface ThemeState {
 
 const applyTheme = (theme: Theme) => {
   const root = window.document.documentElement;
-  root.classList.remove('light', 'dark');
+  root.classList.remove('light', 'dark', 'theme-light', 'theme-dark');
 
   const actualTheme =
     theme === 'system'
@@ -19,6 +19,8 @@ const applyTheme = (theme: Theme) => {
       : theme;
 
   root.classList.add(actualTheme);
+  root.classList.add(`theme-${actualTheme}`);
+  root.dataset.themeMode = actualTheme;
 };
 
 export const useThemeStore = create<ThemeState>()(

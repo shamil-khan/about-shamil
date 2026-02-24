@@ -10,30 +10,34 @@ interface AdditionalSectionProps {
 
 export function AdditionalSection({ data }: AdditionalSectionProps) {
   return (
-    <SectionWrapper id='additional' className='py-16 md:py-24'>
+    <SectionWrapper id='additional' className='py-16 md:py-24 app-transition'>
       <div className='container mx-auto px-4'>
         <div className='max-w-4xl mx-auto'>
           <SectionTitle>Additional Info</SectionTitle>
           <div className='grid gap-4 md:grid-cols-2'>
-            <Card className='hover:shadow-md transition-shadow'>
+            <Card className='app-theme-card-hover app-theme-card-highlight'>
               <CardContent className='p-6 flex items-center gap-4'>
-                <div className='p-3 rounded-full bg-primary/10 text-primary'>
+                <div className='p-3 rounded-full app-theme-icon-soft'>
                   <Clock className='h-5 w-5' />
                 </div>
                 <div>
-                  <p className='text-sm text-muted-foreground'>Availability</p>
-                  <p className='font-semibold'>{data.availability}</p>
+                  <p className='text-sm app-theme-muted'>Availability</p>
+                  <p className='font-semibold app-theme-card-title'>
+                    {data.availability}
+                  </p>
                 </div>
               </CardContent>
             </Card>
-            <Card className='hover:shadow-md transition-shadow'>
+            <Card className='app-theme-card-hover app-theme-card-highlight'>
               <CardContent className='p-6 flex items-center gap-4'>
-                <div className='p-3 rounded-full bg-primary/10 text-primary'>
+                <div className='p-3 rounded-full app-theme-icon-soft'>
                   <Users className='h-5 w-5' />
                 </div>
                 <div>
-                  <p className='text-sm text-muted-foreground'>References</p>
-                  <p className='font-semibold'>{data.references}</p>
+                  <p className='text-sm app-theme-muted'>References</p>
+                  <p className='font-semibold app-theme-card-title'>
+                    {data.references}
+                  </p>
                 </div>
               </CardContent>
             </Card>

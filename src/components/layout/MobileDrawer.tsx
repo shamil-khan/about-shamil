@@ -72,7 +72,7 @@ export function MobileDrawer({
       <SheetContent
         key={side}
         side={side}
-        className='w-75 sm:w-87.5 flex flex-col [&>button:first-of-type]:hidden'>
+        className='w-75 sm:w-87.5 flex flex-col app-theme-surface app-transition [&>button:first-of-type]:hidden'>
         {/* Custom RTL-aware close button */}
         <Button
           variant='ghost'
@@ -107,7 +107,7 @@ export function MobileDrawer({
           <SectionLabel>Actions</SectionLabel>
           <Button
             variant='ghost'
-            className='justify-start px-3 py-3 h-auto font-medium text-muted-foreground'
+            className='justify-start px-3 py-3 h-auto font-medium app-theme-nav-inactive app-theme-nav-button'
             asChild
             onClick={onClose}>
             <Link to='/print'>
@@ -156,7 +156,7 @@ export function MobileDrawer({
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className='text-xs font-medium text-muted-foreground px-3 mb-2 uppercase tracking-wide'>
+    <p className='text-xs font-medium app-theme-muted px-3 mb-2 uppercase tracking-wide'>
       {children}
     </p>
   );
@@ -175,9 +175,8 @@ function NavButton({
     <button
       onClick={onClick}
       className={cn(
-        'flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors text-start',
-        'hover:bg-accent hover:text-accent-foreground',
-        isActive ? 'text-primary bg-accent' : 'text-muted-foreground',
+        'flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors text-start app-theme-nav-button',
+        isActive ? 'app-theme-nav-active' : 'app-theme-nav-inactive',
       )}>
       {children}
     </button>
@@ -199,9 +198,8 @@ function OptionButton({
     <button
       onClick={onClick}
       className={cn(
-        'flex items-center justify-between px-3 py-2.5 rounded-md text-sm transition-colors text-start',
-        'hover:bg-accent hover:text-accent-foreground',
-        isSelected ? 'text-primary bg-accent' : 'text-muted-foreground',
+        'flex items-center justify-between px-3 py-2.5 rounded-md text-sm transition-colors text-start app-theme-nav-button',
+        isSelected ? 'app-theme-nav-active' : 'app-theme-nav-inactive',
       )}>
       <div className='flex items-center gap-3'>
         {icon}

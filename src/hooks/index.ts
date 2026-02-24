@@ -5,4 +5,4 @@ export {
   type UseCVPrintPagesOptions,
   type UseCVPrintPagesResult,
   useCVPrintPages,
-} from './useCvPrintPages';
+} from './useCVPrintPages';

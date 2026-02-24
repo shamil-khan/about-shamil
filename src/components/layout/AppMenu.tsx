@@ -64,16 +64,16 @@ export function AppMenu({ className }: AppMenuProps) {
         <Button
           variant='ghost'
           className={cn(
-            'flex items-center gap-1.5 px-2 hover:bg-accent',
+            'flex items-center gap-1.5 px-2 app-theme-nav-button',
             className,
           )}>
           <Avatar className='h-8 w-8'>
             <AvatarImage src='/logo.png' alt='SK' />
-            <AvatarFallback className='bg-primary text-primary-foreground text-sm font-bold'>
+            <AvatarFallback className='text-sm font-bold app-theme-avatar-fallback app-transition'>
               SK
             </AvatarFallback>
           </Avatar>
-          <ChevronDown className='h-3.5 w-3.5 text-muted-foreground' />
+          <ChevronDown className='h-3.5 w-3.5 app-theme-muted' />
         </Button>
       </DropdownMenuTrigger>
 

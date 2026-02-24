@@ -46,22 +46,22 @@ export function ViewableCVPage() {
 
   if (isLoading) {
     return (
-      <div className='min-h-screen flex items-center justify-center'>
-        <div className='animate-pulse text-muted-foreground'>Loading...</div>
+      <div className='min-h-screen app-theme-page app-transition flex items-center justify-center'>
+        <div className='animate-pulse app-theme-muted'>Loading...</div>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className='min-h-screen flex items-center justify-center'>
+      <div className='min-h-screen app-theme-page app-transition flex items-center justify-center'>
         <div className='text-destructive'>Failed to load CV data</div>
       </div>
     );
   }
 
   return (
-    <div className='min-h-screen bg-background text-foreground'>
+    <div className='min-h-screen app-theme-page app-transition'>
       <AppNavbar
         navItems={navItems}
         activeSection={activeSection}

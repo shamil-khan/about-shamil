@@ -10,7 +10,9 @@ interface AwardsSectionProps {
 
 export function AwardsSection({ data }: AwardsSectionProps) {
   return (
-    <SectionWrapper id='awards' className='py-16 md:py-24 bg-muted/30'>
+    <SectionWrapper
+      id='awards'
+      className='py-16 md:py-24 app-theme-alt-surface app-transition'>
       <div className='container mx-auto px-4'>
         <div className='max-w-4xl mx-auto'>
           <SectionTitle>Awards & Recognition</SectionTitle>
@@ -18,19 +20,17 @@ export function AwardsSection({ data }: AwardsSectionProps) {
             {data.map((award, index) => (
               <Card
                 key={index}
-                className='group hover:shadow-md hover:border-primary/50 transition-all'>
+                className='group app-theme-card-hover app-theme-card-highlight'>
                 <CardContent className='p-6 flex items-start gap-4'>
-                  <div className='p-2 rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors'>
+                  <div className='p-2 rounded-full app-theme-icon-soft group-hover:bg-primary group-hover:text-primary-foreground transition-colors'>
                     <AwardIcon className='h-5 w-5' />
                   </div>
                   <div className='flex-1 min-w-0'>
-                    <h3 className='font-semibold text-base leading-tight mb-1'>
+                    <h3 className='font-semibold text-base leading-tight mb-1 app-theme-card-title'>
                       {award.title}
                     </h3>
-                    <p className='text-sm text-muted-foreground'>
-                      {award.issuer}
-                    </p>
-                    <p className='text-sm text-muted-foreground/70'>
+                    <p className='text-sm app-theme-muted'>{award.issuer}</p>
+                    <p className='text-sm app-theme-muted opacity-75'>
                       {award.year}
                     </p>
                   </div>

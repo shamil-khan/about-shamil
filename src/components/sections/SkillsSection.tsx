@@ -10,7 +10,7 @@ interface SkillsSectionProps {
 
 export function SkillsSection({ data }: SkillsSectionProps) {
   return (
-    <SectionWrapper id='skills' className='py-16 md:py-24'>
+    <SectionWrapper id='skills' className='py-16 md:py-24 app-transition'>
       <div className='container mx-auto px-4'>
         <div className='max-w-6xl mx-auto'>
           <SectionTitle>Skills</SectionTitle>
@@ -18,9 +18,9 @@ export function SkillsSection({ data }: SkillsSectionProps) {
             {data.map((skill, index) => (
               <Card
                 key={index}
-                className='group hover:shadow-md transition-shadow'>
+                className='group app-theme-card-hover app-theme-card-highlight'>
                 <CardHeader className='pb-3'>
-                  <CardTitle className='text-lg font-semibold'>
+                  <CardTitle className='text-lg font-semibold app-theme-card-title'>
                     {skill.category}
                   </CardTitle>
                 </CardHeader>
@@ -30,7 +30,7 @@ export function SkillsSection({ data }: SkillsSectionProps) {
                       <Badge
                         key={itemIndex}
                         variant='outline'
-                        className='group-hover:border-primary/50 transition-colors'>
+                        className='app-theme-skill-badge app-transition'>
                         {item}
                       </Badge>
                     ))}

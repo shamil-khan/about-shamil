@@ -36,7 +36,7 @@ export function AppNavbar({
         className={cn(
           'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
           isScrolled
-            ? 'bg-background/95 backdrop-blur-md border-b border-border shadow-sm'
+            ? 'app-theme-glass backdrop-blur-md border-b app-theme-border shadow-sm'
             : 'bg-transparent',
         )}>
         <div className='container mx-auto px-4'>
@@ -64,11 +64,10 @@ export function AppNavbar({
                   <button
                     onClick={() => handleNavClick(item.id)}
                     className={cn(
-                      'px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                      'hover:bg-accent hover:text-accent-foreground',
+                      'px-3 py-2 rounded-md text-sm font-medium transition-colors app-theme-nav-button',
                       activeSection === item.id
-                        ? 'text-primary bg-accent'
-                        : 'text-muted-foreground',
+                        ? 'app-theme-nav-active'
+                        : 'app-theme-nav-inactive',
                     )}>
                     {item.label}
                   </button>

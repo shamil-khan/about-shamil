@@ -96,8 +96,6 @@
     --cv-border: #1f2937 !important;
     --cv-separator: #6b7280 !important;
     --cv-link-hover: #dc2626 !important;
-    --cv-toggle-bg: #ffffff !important;
-    --cv-toggle-border: #d1d5db !important;
   }
 
   * {
@@ -136,8 +134,7 @@
   }
 
   .cv-page,
-  .cv-container,
-  .cv-card {
+  .cv-container {
     background: white !important;
     color: #1f2937 !important;
     box-shadow: none !important;

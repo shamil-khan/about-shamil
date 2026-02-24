@@ -9,9 +9,9 @@ export function PrintableCVPage() {
   };
 
   return (
-    <div className='min-h-screen bg-background'>
+    <div className='min-h-screen app-theme-page app-transition'>
       {/* Action Bar - Hidden when printing */}
-      <div className='fixed top-0 inset-s-0 inset-e-0 z-50 bg-background/95 backdrop-blur border-b print:hidden'>
+      <div className='fixed top-0 inset-s-0 inset-e-0 z-50 app-theme-glass backdrop-blur border-b app-theme-border print:hidden app-transition'>
         <div className='container mx-auto px-4 h-14 flex items-center justify-between'>
           <Button variant='ghost' size='sm' asChild>
             <Link to='/'>

@@ -10,8 +10,6 @@
   --cv-border: #1f2937;
   --cv-separator: #94a3b8;
   --cv-link-hover: #b91c1c;
-  --cv-toggle-bg: #ffffff;
-  --cv-toggle-border: #d1d5db;
 }
 
 .dark {
@@ -25,8 +23,6 @@
   --cv-border: #30415b;
   --cv-separator: #526685;
   --cv-link-hover: #f5adad;
-  --cv-toggle-bg: #1b273c;
-  --cv-toggle-border: #3a4b68;
 }
 
 /* Screen styles */
@@ -120,41 +116,6 @@
 
 .cv-theme-link:hover {
   color: var(--cv-link-hover);
-}
-
-.cv-theme-toggle {
-  background-color: var(--cv-toggle-bg);
-  border: 0.5px solid var(--cv-toggle-border);
-}
-
-.cv-action-dock {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  z-index: 20;
-  display: flex;
-  gap: 6px;
-}
-
-/* Backward-compatible aliases */
-.cv-card {
-  background-color: var(--cv-card-bg);
-}
-
-.cv-text-primary {
-  color: var(--cv-text-heading);
-}
-
-.cv-text-secondary {
-  color: var(--cv-text-subtext);
-}
-
-.cv-accent-text {
-  color: var(--cv-text-accent);
-}
-
-.cv-border {
-  border-color: var(--cv-border);
 }
 
 /* Compact line heights */
