@@ -1,0 +1,19 @@
+{
+  "name": "about-shamil",
+  "version": "1.0.0",
+  "description": "This is a monorepo for the About Shamil project, which includes a web application, a backend API, and a background worker.",
+  "license": "ISC",
+  "author": "Shamil Khan",
+  "type": "module",
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "dev": "turbo watch dev",
+    "build:web": "pnpm --filter web build",
+    "build": "turbo build",
+    "lint": "turbo lint"
+  },
+  "devDependencies": {
+    "turbo": "^2.8.12"
+  },
+  "packageManager": "pnpm@10.30.1"
+}
