@@ -6,11 +6,22 @@ import tseslint from 'typescript-eslint';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import reactCompiler from 'eslint-plugin-react-compiler';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores([
+    '**/dist',
+    '**/node_modules',
+    '**/.turbo',
+    '**/.wrangler',
+    '**/coverage',
+    '**/.eslintcache',
+  ]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['apps/web/**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
       ...tseslint.configs.recommended,

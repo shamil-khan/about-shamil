@@ -1,7 +1,6 @@
 # packages
 .turbo
 
-
 # Logs
 logs
 *.log
@@ -31,4 +30,13 @@ dist-ssr
 *.eslintcache
 .env.local
 .env.development
+.env
+.env.production
 passwords.txt
+
+# Cloudflare (api)
+.wrangler
+.dev.vars
+
+# Misc
+.yarn/

@@ -3,12 +3,11 @@
 **/dist
 **/public
 **/.DS_Store
+**/.turbo
+**/.wrangler
 .vscode/**/*
 !.vscode/settings.json
 readme.md
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
-
-
-
