@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "turbo watch dev",
     "build": "turbo build",
+    "preview": "turbo preview",
     "deploy": "turbo build && pnpm --filter api run deploy",
     "lint": "turbo lint",
     "cleanup": "node scripts/cleanup.js",

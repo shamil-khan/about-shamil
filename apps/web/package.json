@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint . --no-cache --format stylish && echo \"✅ Lint passed for web\"",
     "preview": "vite preview",
+    "lint": "eslint . --no-cache --format stylish && echo \"✅ Lint passed for web\"",
     "format": "prettier . --write --ignore-path ../../.prettierignore",
     "format:check": "prettier --check . --ignore-path ../../.prettierignore"
   },
