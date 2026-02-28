@@ -18,7 +18,8 @@
     "redis-on-workers": "^0.4.2"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260305.0",
     "@types/node": "^25.3.0",
-    "wrangler": "^4.4.0"
+    "wrangler": "^4.69.0"
   }
 }

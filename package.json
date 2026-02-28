@@ -6,10 +6,9 @@
   "author": "Shamil Khan",
   "type": "module",
   "scripts": {
-    "dev:web": "pnpm --filter web dev",
     "dev": "turbo watch dev",
-    "build:web": "pnpm --filter web build",
     "build": "turbo build",
+    "deploy": "turbo build && pnpm --filter api run deploy",
     "lint": "turbo lint",
     "cleanup": "node scripts/cleanup.js",
     "ai-context": "node scripts/ai-context.js",

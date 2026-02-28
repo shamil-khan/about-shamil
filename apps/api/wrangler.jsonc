@@ -1,11 +1,21 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "api",
+  "name": "about",
   "main": "src/index.ts",
-  "compatibility_date": "2026-02-27",
-  // "compatibility_flags": [
-  //   "nodejs_compat"
-  // ],
+  "compatibility_date": "2026-02-28",
+  "compatibility_flags": ["nodejs_compat"],
+  // Point to the backend bundle
+  "assets": {
+    // Point to the frontend static assets
+    "directory": "../web/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": true,
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+  },
   // "vars": {
   //   "MY_VAR": "my-variable"
   // },
