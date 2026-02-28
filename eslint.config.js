@@ -43,6 +43,27 @@ export default defineConfig([
       'react-compiler/react-compiler': 'error',
     },
   },
+  {
+    files: ['apps/api/**/*.{ts,tsx}'],
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: {
+        Cloudflare: 'readonly',
+        globalThis: 'readonly',
+      },
+      parserOptions: {
+        tsconfigRootDir: path.join(__dirname, 'apps/api'),
+        project: './tsconfig.json',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_' },
+      ],
+    },
+  },
   eslintPluginPrettierRecommended,
   {
     rules: {
