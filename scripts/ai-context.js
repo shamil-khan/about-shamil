@@ -11,7 +11,16 @@ const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 const outputDir = path.join(ROOT_DIR, 'dist');
 
-const allowedExtensions = ['.ts', '.tsx', '.css', '.json', '.yaml', '.yml'];
+const allowedExtensions = [
+  '.ts',
+  '.tsx',
+  '.css',
+  '.json',
+  '.yaml',
+  '.yml',
+  '.jsonc',
+  '.toml',
+];
 const ignoredDirs = [
   'node_modules',
   'dist',
@@ -49,7 +58,9 @@ function ensureDirectoryExistence() {
 
 function shouldIgnore(filePath) {
   const fileName = path.basename(filePath);
+
   if (ignoredFiles.includes(fileName)) return true;
+  if (fileName.endsWith('.d.ts')) return true;
 
   const relativeFromRoot = path.relative(ROOT_DIR, filePath);
   const pathParts = relativeFromRoot.split(path.sep);
