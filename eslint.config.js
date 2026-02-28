@@ -19,6 +19,7 @@ export default defineConfig([
     '**/.wrangler',
     '**/coverage',
     '**/.eslintcache',
+    '**/*.d.ts',
   ]),
   {
     files: ['apps/web/**/*.{ts,tsx}'],

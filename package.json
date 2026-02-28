@@ -11,6 +11,8 @@
     "preview": "turbo preview",
     "deploy": "turbo build && pnpm --filter api run deploy",
     "lint": "turbo lint",
+    "format": "turbo format",
+    "format:check": "turbo format:check",
     "cleanup": "node scripts/cleanup.js",
     "ai-context": "node scripts/ai-context.js",
     "ai-context:web": "node scripts/ai-context.js --path apps/web"

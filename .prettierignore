@@ -7,6 +7,7 @@
 **/.wrangler
 .vscode/**/*
 !.vscode/settings.json
+*.d.ts
 readme.md
 package-lock.json
 pnpm-lock.yaml
