@@ -1,6 +1,14 @@
 {
   "$schema": "https://json.schemastore.org",
   "tasks": {
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:watch": {
+      "cache": false,
+      "persistent": true
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
@@ -13,10 +21,6 @@
     "deploy": {
       "dependsOn": ["build"],
       "cache": false
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
     },
     "lint": {
       "dependsOn": ["^lint"]

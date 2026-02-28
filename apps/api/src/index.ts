@@ -71,10 +71,16 @@ app.get('*', async (c) => {
   if (res.status !== 404) {
     const newRes = new Response(res.body, res);
     // Add long-term caching for static assets
+
+    const isDev = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+    if (!isDev) {
+      newRes.headers.set('Cache-Control', 'public, max-age=31536000');
+    } else {
     newRes.headers.set(
       'Cache-Control',
-      'public, max-age=31536000, stale-while-revalidate=86400',
+        'no-cache, no-store, must-revalidate',
     );
+    }
     return newRes;
   }
 

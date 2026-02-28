@@ -6,7 +6,8 @@
   "author": "Shamil Khan",
   "type": "module",
   "scripts": {
-    "dev": "turbo watch dev",
+    "dev": "turbo dev",
+    "dev:watch": "pnpm --filter web build && turbo run api#dev:watch web#dev:watch web#dev --parallel",
     "build": "turbo build",
     "preview": "turbo preview",
     "deploy": "turbo build && pnpm --filter api run deploy",

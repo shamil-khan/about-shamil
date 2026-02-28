@@ -12,6 +12,9 @@ export default defineConfig({
   preview: {
     port: 3312,
   },
+  build: {
+    emptyOutDir: false, // Important for Wrangler stability
+  },
   plugins: [
     react({
       babel: {

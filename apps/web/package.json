@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:watch": "vite build --watch --mode development",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint . --no-cache --format stylish && echo \"✅ Lint passed for web\"",
