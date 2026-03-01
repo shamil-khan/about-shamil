@@ -3,14 +3,16 @@ import { cors } from 'hono/cors';
 import pino from 'pino';
 import { pinoLogger, type PinoLogger } from 'hono-pino';
 
-const VERSION = 'V1';
-
 // Define the Environment Types so c.get('logger') works
 type Env = {
   Variables: {
     logger: PinoLogger;
   };
   Bindings: {
+    APP_NAME: string;
+    APP_VERSION: string;
+    IS_DEVELOPMENT: boolean;
+    REDIS_URL: string;
     ASSETS: Fetcher;
   };
 };
@@ -39,11 +41,23 @@ const logger = pino({
 
 app.use(pinoLogger({ pino: logger }));
 
+app.get('/info', (c) => {
+  // Now c.env is fully typed with autocomplete
+  const { APP_NAME, APP_VERSION, IS_DEVELOPMENT, REDIS_URL } = c.env;
+
+  return c.json({
+    name: APP_NAME,
+    version: APP_VERSION,
+    isDevelopment: IS_DEVELOPMENT ? 'YES' : 'NO',
+    redisUrl: REDIS_URL,
+  });
+});
+
 app.get('/time', (c) => {
   const time = new Date().toISOString();
 
   return c.text(
-    `Hello Hono - (${VERSION})! The current time is ${time.slice(11, 19)}`,
+    `Hello Hono - (${c.env.APP_VERSION})! The current time is ${time.slice(11, 19)}`,
   );
 });
 
@@ -55,7 +69,7 @@ app.get('/api', (c) => {
   return c.json({
     status: 'ok',
     timestamp: time,
-    message: `API (${VERSION}) is working fine! (${time.slice(11, 19)})`,
+    message: `API (${c.env.APP_VERSION}) is working fine! (${time.slice(11, 19)})`,
   });
 });
 
@@ -72,14 +86,13 @@ app.get('*', async (c) => {
     const newRes = new Response(res.body, res);
     // Add long-term caching for static assets
 
-    const isDev = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
-    if (!isDev) {
+    if (!c.env.IS_DEVELOPMENT) {
       newRes.headers.set('Cache-Control', 'public, max-age=31536000');
     } else {
-    newRes.headers.set(
-      'Cache-Control',
+      newRes.headers.set(
+        'Cache-Control',
         'no-cache, no-store, must-revalidate',
-    );
+      );
     }
     return newRes;
   }
@@ -97,6 +110,7 @@ app.get('*', async (c) => {
 
   c.get('logger').warn({ path }, 'Page not found - showing Dino Game');
 
+  // return await c.env.ASSETS.fetch(new URL('/index.html', c.req.url));
   return c.html(
     `
     <!DOCTYPE html>
