@@ -1,71 +1,202 @@
-import { Hono } from 'hono';
+// --- FILE: apps/api/src/index.ts ---
+
+import { Hono, type Context } from 'hono';
 import { cors } from 'hono/cors';
 import pino from 'pino';
 import { pinoLogger, type PinoLogger } from 'hono-pino';
+import { DocumentApi } from './api/DocumentApi';
+import { SwaggerDocApi } from './api/SwaggerDocApi';
+import {
+  type IUnifiedRedis,
+  getRedis,
+  RedisDataRepository,
+} from './libs/redis';
 
-// Define the Environment Types so c.get('logger') works
-type Env = {
-  Variables: {
-    logger: PinoLogger;
-  };
-  Bindings: {
-    APP_NAME: string;
-    APP_VERSION: string;
-    IS_DEVELOPMENT: boolean;
-    REDIS_URL: string;
-    ASSETS: Fetcher;
-  };
+// =============================================================================
+// Type Definitions
+// =============================================================================
+
+interface CloudflareBindings {
+  APP_NAME: string;
+  APP_VERSION: string;
+  IS_DEVELOPMENT: boolean;
+  REDIS_URL?: string;
+  UPSTASH_REDIS_REST_URL?: string;
+  UPSTASH_REDIS_REST_TOKEN?: string;
+  ASSETS: Fetcher;
+}
+
+interface AppVariables {
+  logger: PinoLogger;
+}
+
+type AppEnv = {
+  Variables: AppVariables;
+  Bindings: CloudflareBindings;
 };
 
-const app = new Hono<Env>();
+type AppContext = Context<AppEnv>;
 
-// 1. MUST BE FIRST: Global CORS middleware
-app.use('*', async (c, next) => {
-  const corsMiddleware = cors({
-    origin,
-    allowMethods: ['POST', 'GET', 'OPTIONS'],
+// =============================================================================
+// Helper Functions
+// =============================================================================
+
+/**
+ * Determines the appropriate Redis URL based on environment mode.
+ */
+function resolveRedisUrl(bindings: CloudflareBindings): string | undefined {
+  return bindings.IS_DEVELOPMENT
+    ? bindings.REDIS_URL
+    : bindings.UPSTASH_REDIS_REST_URL;
+}
+
+/**
+ * Creates a fresh Redis connection for each request.
+ * This prevents stale connection issues in development mode.
+ */
+function createRedisConnection(
+  url: string | undefined,
+  token: string | undefined,
+  log: PinoLogger,
+): IUnifiedRedis | null {
+  if (!url) {
+    log.warn({}, 'Redis URL not configured');
+    return null;
+  }
+
+  try {
+    const redis = getRedis(url, token);
+    log.debug({ url: url.slice(0, 25) + '...' }, 'Redis connection created');
+    return redis;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    log.error({ error: message }, 'Redis connection failed');
+    return null;
+  }
+}
+
+// =============================================================================
+// Document Request Handler
+// =============================================================================
+
+/**
+ * Forwards requests to the DocumentApi router.
+ * Creates a fresh Redis connection and DocumentApi instance per request.
+ */
+async function handleDocumentRequest(
+  c: AppContext,
+  subPath: string,
+): Promise<Response> {
+  const log = c.get('logger');
+  const redisUrl = resolveRedisUrl(c.env);
+
+  // Create fresh Redis connection for this request
+  const redis = createRedisConnection(
+    redisUrl,
+    c.env.UPSTASH_REDIS_REST_TOKEN,
+    log,
+  );
+
+  if (!redis) {
+    log.error({}, 'Redis unavailable for document operation');
+    return c.json({ error: 'Database connection unavailable' }, 503);
+  }
+
+  // Create fresh DocumentApi instance with this connection
+  const repo = new RedisDataRepository(redis);
+  const documentApi = new DocumentApi(repo);
+
+  // Normalize path
+  let normalizedPath = subPath.startsWith('/') ? subPath : `/${subPath}`;
+  if (normalizedPath.length > 1 && normalizedPath.endsWith('/')) {
+    normalizedPath = normalizedPath.slice(0, -1);
+  }
+
+  const url = new URL(c.req.url);
+  const targetUrl = `http://localhost${normalizedPath}${url.search}`;
+
+  log.debug(
+    {
+      originalUrl: url.pathname,
+      targetPath: normalizedPath,
+      method: c.req.method,
+    },
+    'Forwarding to DocumentApi',
+  );
+
+  const method = c.req.method;
+  const hasBody = !['GET', 'HEAD', 'OPTIONS'].includes(method);
+
+  const headers = new Headers();
+  c.req.raw.headers.forEach((value, key) => {
+    headers.set(key, value);
+  });
+
+  let forwardRequest: Request;
+  if (hasBody) {
+    const bodyContent = await c.req.arrayBuffer();
+    forwardRequest = new Request(targetUrl, {
+      method,
+      headers,
+      body: bodyContent,
+    });
+  } else {
+    forwardRequest = new Request(targetUrl, {
+      method,
+      headers,
+    });
+  }
+
+  return documentApi.router.fetch(forwardRequest);
+}
+
+// =============================================================================
+// Application Setup
+// =============================================================================
+
+const app = new Hono<AppEnv>();
+
+const pinoInstance = pino({
+  level: 'info', // Changed from default to reduce noise
+  timestamp: pino.stdTimeFunctions.isoTime,
+  formatters: {
+    level: (label: string) => ({ level: label.toUpperCase() }),
+  },
+});
+
+// =============================================================================
+// Global Middleware
+// =============================================================================
+
+app.use(
+  '*',
+  cors({
+    origin: '*',
+    allowMethods: ['POST', 'GET', 'OPTIONS', 'DELETE', 'PUT'],
     allowHeaders: ['Content-Type', 'Authorization'],
     exposeHeaders: ['Content-Length'],
     maxAge: 600,
     credentials: true,
-  });
-  return corsMiddleware(c, next);
-});
+  }),
+);
 
-const logger = pino({
-  timestamp: pino.stdTimeFunctions.isoTime,
-  formatters: {
-    level: (label) => ({ level: label.toUpperCase() }),
-  },
-});
+app.use('*', pinoLogger({ pino: pinoInstance }));
 
-app.use(pinoLogger({ pino: logger }));
-
-app.get('/info', (c) => {
-  // Now c.env is fully typed with autocomplete
-  const { APP_NAME, APP_VERSION, IS_DEVELOPMENT, REDIS_URL } = c.env;
-
-  return c.json({
-    name: APP_NAME,
-    version: APP_VERSION,
-    isDevelopment: IS_DEVELOPMENT ? 'YES' : 'NO',
-    redisUrl: REDIS_URL,
-  });
-});
+// =============================================================================
+// Root-Level Routes
+// =============================================================================
 
 app.get('/time', (c) => {
   const time = new Date().toISOString();
-
+  const timeStr = time.slice(11, 19);
   return c.text(
-    `Hello Hono - (${c.env.APP_VERSION})! The current time is ${time.slice(11, 19)}`,
+    `Hello Hono - (${c.env.APP_VERSION})! The current time is ${timeStr}`,
   );
 });
 
-app.get('/api', (c) => {
+app.get('/app-beat', (c) => {
   const time = new Date().toISOString();
-
-  c.get('logger').info({ time }, 'API check successful');
-
+  c.get('logger').info({ time }, 'API heartbeat check');
   return c.json({
     status: 'ok',
     timestamp: time,
@@ -73,69 +204,99 @@ app.get('/api', (c) => {
   });
 });
 
+// =============================================================================
+// API Sub-Router
+// =============================================================================
+
+const api = new Hono<AppEnv>();
+
+api.get('/info', (c) => {
+  const { APP_NAME, APP_VERSION, IS_DEVELOPMENT } = c.env;
+  const redisUrl = resolveRedisUrl(c.env);
+
+  return c.json({
+    name: APP_NAME,
+    version: APP_VERSION,
+    isDevelopment: IS_DEVELOPMENT ? 'YES' : 'NO',
+    redisConfigured: redisUrl ? 'YES' : 'NO',
+  });
+});
+
+const swaggerDoc = new SwaggerDocApi();
+api.route('/swagger', swaggerDoc.router);
+
+// =============================================================================
+// Document API Routes
+// =============================================================================
+
+api.get('/docs', (c) => handleDocumentRequest(c, '/'));
+api.post('/docs', (c) => handleDocumentRequest(c, '/'));
+api.delete('/docs', (c) => handleDocumentRequest(c, '/'));
+
+api.delete('/docs/batch', (c) => handleDocumentRequest(c, '/batch'));
+
+api.get('/docs/user/:userId', (c) => {
+  const userId = c.req.param('userId');
+  return handleDocumentRequest(c, `/user/${userId}`);
+});
+
+api.get('/docs/user/:userId/meta', (c) => {
+  const userId = c.req.param('userId');
+  return handleDocumentRequest(c, `/user/${userId}/meta`);
+});
+
+api.delete('/docs/user/:userId', (c) => {
+  const userId = c.req.param('userId');
+  return handleDocumentRequest(c, `/user/${userId}`);
+});
+
+api.get('/docs/:id', (c) => {
+  const id = c.req.param('id');
+  return handleDocumentRequest(c, `/${id}`);
+});
+
+api.put('/docs/:id', (c) => {
+  const id = c.req.param('id');
+  return handleDocumentRequest(c, `/${id}`);
+});
+
+api.delete('/docs/:id', (c) => {
+  const id = c.req.param('id');
+  return handleDocumentRequest(c, `/${id}`);
+});
+
+app.route('/api', api);
+
+// =============================================================================
+// Static Asset Handling
+// =============================================================================
+
 app.get('*', async (c) => {
   const url = new URL(c.req.url);
   const path = url.pathname;
-  const fileName = path.split('/').pop() || path;
+  const fileName = path.split('/').pop() ?? 'unknown';
 
-  // 1. Try to fetch from web/dist via the ASSETS binding
   const res = await c.env.ASSETS.fetch(c.req.raw);
 
-  // 2. SUCCESS: File exists in web/dist (CSS, JS, Images, etc.)
   if (res.status !== 404) {
     const newRes = new Response(res.body, res);
-    // Add long-term caching for static assets
-
-    if (!c.env.IS_DEVELOPMENT) {
-      newRes.headers.set('Cache-Control', 'public, max-age=31536000');
-    } else {
-      newRes.headers.set(
-        'Cache-Control',
-        'no-cache, no-store, must-revalidate',
-      );
-    }
+    const cacheControl = c.env.IS_DEVELOPMENT
+      ? 'no-cache, no-store, must-revalidate'
+      : 'public, max-age=31536000';
+    newRes.headers.set('Cache-Control', cacheControl);
     return newRes;
   }
 
-  // 3. 404 HANDLING: File not found in web/dist
-  const isAsset = /\.(png|jpe?g|gif|svg|ico|css|js|woff2?|map|json)$/i.test(
-    path,
-  );
+  const isStaticAsset =
+    /\.(png|jpe?g|gif|svg|ico|css|js|woff2?|map|json)$/i.test(path);
 
-  if (isAsset) {
-    // Log the missing file to your terminal via Pino
-    c.get('logger').error({ path, fileName }, `Static asset missing`);
+  if (isStaticAsset) {
+    c.get('logger').error({ path, fileName }, 'Static asset not found');
     return c.text(`Asset "${fileName}" not found`, 404);
   }
 
-  c.get('logger').warn({ path }, 'Page not found - showing Dino Game');
-
-  // return await c.env.ASSETS.fetch(new URL('/index.html', c.req.url));
-  return c.html(
-    `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <title>404 | Page Not Found</title>
-      <style>
-        body { background: #0f172a; color: #f8fafc; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .box { text-align: center; background: #1e293b; padding: 2rem; border-radius: 1rem; border: 1px solid #334155; width: 90%; max-width: 500px; }
-        h1 { color: #38bdf8; font-size: 4rem; margin: 0; }
-        iframe { width: 100%; height: 200px; border-radius: 8px; border: 2px solid #334155; margin: 1.5rem 0; background: #fff; }
-        .path { color: #94a3b8; font-family: monospace; background: #0f172a; padding: 2px 6px; border-radius: 4px; }
-      </style>
-    </head>
-    <body>
-      <div class="box">
-        <h1>404</h1>
-        <p>The page <span class="path">${path}</span> does not exist.</p>
-        <a href="/" style="color: #38bdf8; text-decoration: none; font-weight: bold;">← Go Home</a>
-      </div>
-    </body>
-    </html>
-  `,
-    404,
-  );
+  c.get('logger').warn({ path }, 'Route not found - serving SPA fallback');
+  return c.env.ASSETS.fetch(new URL('/index.html', c.req.url));
 });
 
 export default app;
