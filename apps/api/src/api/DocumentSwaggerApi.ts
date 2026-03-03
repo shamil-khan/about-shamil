@@ -78,6 +78,61 @@ export class DocumentSwaggerApi {
       ],
       components: {
         schemas: {
+          // Add to DocumentOpenApiSpec.ts components.schemas:
+
+          ContentPayload: {
+            type: 'object',
+            required: ['data', 'mimeType', 'fileName', 'encoding'],
+            properties: {
+              data: {
+                type: 'string',
+                description: 'Content data (Base64 encoded for binary files)',
+                example: 'SGVsbG8gV29ybGQh',
+              },
+              mimeType: {
+                type: 'string',
+                description: 'MIME type of the content',
+                example: 'text/plain',
+              },
+              fileName: {
+                type: 'string',
+                description: 'Original filename',
+                example: 'document.txt',
+              },
+              encoding: {
+                type: 'string',
+                enum: ['utf-8', 'base64', 'binary'],
+                description: 'Encoding of the data field',
+                example: 'utf-8',
+              },
+            },
+          },
+          ContentMetadata: {
+            type: 'object',
+            properties: {
+              mimeType: {
+                type: 'string',
+                description: 'MIME type',
+                example: 'text/plain',
+              },
+              fileName: {
+                type: 'string',
+                description: 'Original filename',
+                example: 'document.txt',
+              },
+              size: {
+                type: 'integer',
+                description: 'Size in bytes',
+                example: 1024,
+              },
+              storageType: {
+                type: 'string',
+                enum: ['inline', 'chunked', 'external'],
+                description: 'Storage strategy used',
+                example: 'inline',
+              },
+            },
+          },
           Document: {
             type: 'object',
             required: [
@@ -352,6 +407,68 @@ export class DocumentSwaggerApi {
             },
           },
         },
+        '/identity/{userId}/{profileName}/{languageCode}': {
+          get: {
+            tags: ['Documents'],
+            summary: 'Get document by identity',
+            description:
+              'Retrieves a document by its identity (secondary key: userId + profileName + languageCode). ' +
+              'Useful when the document ID is unknown but identity fields are available.',
+            operationId: 'getDocumentByIdentity',
+            parameters: [
+              {
+                name: 'userId',
+                in: 'path',
+                required: true,
+                schema: { type: 'string' },
+                description: 'Owner user identifier',
+                example: 'user_456def',
+              },
+              {
+                name: 'profileName',
+                in: 'path',
+                required: true,
+                schema: { type: 'string' },
+                description: 'Profile name for the document',
+                example: 'Professional Resume',
+              },
+              {
+                name: 'languageCode',
+                in: 'path',
+                required: true,
+                schema: { type: 'string' },
+                description: 'ISO language code',
+                example: 'en',
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'Document found',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/Document' },
+                  },
+                },
+              },
+              '404': {
+                description: 'Document not found',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                  },
+                },
+              },
+              '500': {
+                description: 'Internal server error',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                  },
+                },
+              },
+            },
+          },
+        },
         '/{id}': {
           get: {
             tags: ['Documents'],
@@ -398,11 +515,12 @@ export class DocumentSwaggerApi {
           },
           put: {
             tags: ['Documents'],
-            summary: 'Update document',
+            summary: 'Update document content',
             description:
-              'Updates an existing document. All identity fields (userId, profileName, languageCode) are required. ' +
-              'The updatedOn timestamp is auto-generated.',
-            operationId: 'updateDocument',
+              'Updates the content of an existing document. ' +
+              'Identity fields (userId, profileName, languageCode) remain unchanged and cannot be modified. ' +
+              'To change identity fields, delete and recreate the document.',
+            operationId: 'updateContent',
             parameters: [
               {
                 name: 'id',
@@ -415,28 +533,19 @@ export class DocumentSwaggerApi {
             ],
             requestBody: {
               required: true,
+              description: 'New content payload',
               content: {
                 'application/json': {
-                  schema: { $ref: '#/components/schemas/DocumentRequest' },
+                  schema: { $ref: '#/components/schemas/ContentPayload' },
                 },
               },
             },
             responses: {
               '200': {
-                description: 'Document updated successfully',
+                description: 'Content updated successfully',
                 content: {
                   'application/json': {
                     schema: { $ref: '#/components/schemas/DocumentResponse' },
-                  },
-                },
-              },
-              '400': {
-                description: 'Missing required identity fields',
-                content: {
-                  'application/json': {
-                    schema: {
-                      $ref: '#/components/schemas/ValidationErrorResponse',
-                    },
                   },
                 },
               },
@@ -444,7 +553,7 @@ export class DocumentSwaggerApi {
                 description: 'Document not found',
                 content: {
                   'application/json': {
-                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    schema: { $ref: '#/components/schemas/DocumentResponse' },
                   },
                 },
               },
@@ -828,32 +937,49 @@ export class DocumentSwaggerApi {
     };
   }
 }
+// --- FILE: apps/api/src/api/DocumentOpenApiSpec.ts ---
+
+// ... (keep everything above the type definitions)
 
 // =============================================================================
 // OpenAPI Type Definitions (for internal type safety)
 // =============================================================================
 
+/** OpenAPI 3.0 specification root object */
 interface OpenApiSpec {
   openapi: string;
-  info: {
-    title: string;
-    version: string;
-    description: string;
-  };
-  servers: Array<{
-    url: string;
-    description: string;
-  }>;
-  tags: Array<{
-    name: string;
-    description: string;
-  }>;
-  components: {
-    schemas: Record<string, SchemaObject>;
-  };
+  info: OpenApiInfo;
+  servers: OpenApiServer[];
+  tags: OpenApiTag[];
+  components: OpenApiComponents;
   paths: Record<string, PathItemObject>;
 }
 
+/** API metadata */
+interface OpenApiInfo {
+  title: string;
+  version: string;
+  description: string;
+}
+
+/** Server configuration */
+interface OpenApiServer {
+  url: string;
+  description: string;
+}
+
+/** Tag for grouping operations */
+interface OpenApiTag {
+  name: string;
+  description: string;
+}
+
+/** Reusable components */
+interface OpenApiComponents {
+  schemas: Record<string, SchemaObject>;
+}
+
+/** Schema definition */
 interface SchemaObject {
   type: string;
   required?: string[];
@@ -863,8 +989,10 @@ interface SchemaObject {
   description?: string;
   format?: string;
   nullable?: boolean;
+  enum?: readonly string[];
 }
 
+/** Property definition */
 interface PropertyObject {
   type?: string;
   format?: string;
@@ -873,19 +1001,41 @@ interface PropertyObject {
   items?: PropertyObject | RefObject;
   $ref?: string;
   nullable?: boolean;
+  /** Enumerated values for this property */
+  enum?: readonly string[];
+  /** Minimum value for numbers */
+  minimum?: number;
+  /** Maximum value for numbers */
+  maximum?: number;
+  /** Minimum length for strings */
+  minLength?: number;
+  /** Maximum length for strings */
+  maxLength?: number;
+  /** Default value */
+  default?: unknown;
+  /** Pattern for string validation (regex) */
+  pattern?: string;
+  /** Whether the property is read-only */
+  readOnly?: boolean;
+  /** Whether the property is write-only */
+  writeOnly?: boolean;
 }
 
+/** Reference to another schema */
 interface RefObject {
   $ref: string;
 }
 
+/** Path item with HTTP methods */
 interface PathItemObject {
   get?: OperationObject;
   post?: OperationObject;
   put?: OperationObject;
   delete?: OperationObject;
+  patch?: OperationObject;
 }
 
+/** API operation definition */
 interface OperationObject {
   tags: string[];
   summary: string;
@@ -894,31 +1044,63 @@ interface OperationObject {
   parameters?: ParameterObject[];
   requestBody?: RequestBodyObject;
   responses: Record<string, ResponseObject>;
+  /** Whether the operation is deprecated */
+  deprecated?: boolean;
+  /** Security requirements */
+  security?: Record<string, string[]>[];
 }
 
+/** Parameter definition */
 interface ParameterObject {
   name: string;
-  in: 'path' | 'query' | 'header';
+  in: 'path' | 'query' | 'header' | 'cookie';
   required: boolean;
-  schema: { type: string };
+  schema: ParameterSchemaObject;
   description: string;
-  example?: string;
+  example?: unknown;
+  /** Whether the parameter is deprecated */
+  deprecated?: boolean;
 }
 
+/** Schema object for parameters */
+interface ParameterSchemaObject {
+  type: string;
+  format?: string;
+  enum?: readonly string[];
+  default?: unknown;
+  minimum?: number;
+  maximum?: number;
+}
+
+/** Request body definition */
 interface RequestBodyObject {
   required: boolean;
+  description?: string;
   content: {
-    'application/json': {
-      schema: RefObject;
-    };
+    'application/json'?: MediaTypeObject;
+    'multipart/form-data'?: MediaTypeObject;
+    'application/octet-stream'?: MediaTypeObject;
   };
 }
 
+/** Media type object */
+interface MediaTypeObject {
+  schema: RefObject | SchemaObject;
+  example?: unknown;
+}
+
+/** Response definition */
 interface ResponseObject {
   description: string;
   content?: {
-    'application/json': {
-      schema: RefObject | SchemaObject;
-    };
+    'application/json'?: MediaTypeObject;
+    'application/octet-stream'?: MediaTypeObject;
   };
+  headers?: Record<string, HeaderObject>;
+}
+
+/** Header definition */
+interface HeaderObject {
+  description?: string;
+  schema: ParameterSchemaObject;
 }

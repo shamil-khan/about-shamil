@@ -1,12 +1,15 @@
 import { IDocumentRepository } from '../repository/IDcoumentRepository';
 import {
+  ContentPayload,
   Document,
   DocumentMetadata,
   DocumentRequest,
   DocumentResponse,
   DocumentStoreResetResponse,
 } from '../data';
+import { ContentService } from '../services';
 import { IUnifiedRedis } from '../libs';
+import { toDocumentMetadata } from '../data/DocumentMetadata';
 
 /**
  * Redis implementation of the IDocumentRepository interface.
@@ -20,46 +23,57 @@ export class RedisDocumentRepository implements IDocumentRepository {
   constructor(private readonly redis: IUnifiedRedis) {}
 
   /**
+   * Builds the unique constraint key for identity lookups.
+   * @param userId - Owner user identifier
+   * @param profileName - Profile name for the document
+   * @param languageCode - ISO language code
+   * @returns The Redis key for the unique constraint
+   */
+  private buildUniqueKey = (
+    userId: string,
+    profileName: string,
+    languageCode: string,
+  ): string =>
+    `unique:user:${userId}:profile:${profileName}:lang:${languageCode}`;
+
+  /**
    * Persists a new document to the store.
    * Auto-generates id, createdOn, and sets updatedOn to null.
    */
   async addDocument(request: DocumentRequest): Promise<DocumentResponse> {
-    const id = this.generateUniqueId(); // Implement your ID generator
-    const createdOn = new Date().toISOString();
-    const updatedOn = null;
-
-    const document: Document = {
-      id,
-      userId: request.userId,
-      profileName: request.profileName,
-      languageCode: request.languageCode,
-      content: request.content,
-      createdOn,
-      updatedOn,
-    };
-
-    const metadata: DocumentMetadata = {
-      id,
-      userId: request.userId,
-      profileName: request.profileName,
-      languageCode: request.languageCode,
-    };
-
-    const primaryKey = `doc:${id}`;
-    const metaKey = `meta:${id}`;
-    const userIndexKey = `index:user:${request.userId}:ids`;
-    const uniqueKey = `unique:user:${request.userId}:profile:${request.profileName}:lang:${request.languageCode}`;
+    const timestamp = new Date().toISOString();
+    const uniqueKey = this.buildUniqueKey(
+      request.userId,
+      request.profileName,
+      request.languageCode,
+    );
 
     try {
       const existingId = await this.redis.get(uniqueKey);
       if (existingId) {
         return {
-          documentId: id,
-          timestamp: createdOn,
+          documentId: existingId,
+          timestamp: timestamp,
           status: false,
           message: `Document with the same userId, profileName, and languageCode already exists.`,
         };
       }
+
+      const id = this.generateUniqueId(); // Implement your ID generator
+
+      const document: Document = {
+        id,
+        userId: request.userId,
+        profileName: request.profileName,
+        languageCode: request.languageCode,
+        content: ContentService.toDocumentContent(request.content),
+        createdOn: timestamp,
+      };
+      const metadata: DocumentMetadata = toDocumentMetadata(document);
+
+      const primaryKey = `doc:${id}`;
+      const metaKey = `meta:${id}`;
+      const userIndexKey = `index:user:${request.userId}:ids`;
 
       await Promise.all([
         this.redis.set(primaryKey, JSON.stringify(document)),
@@ -72,7 +86,7 @@ export class RedisDocumentRepository implements IDocumentRepository {
 
       return {
         documentId: id,
-        timestamp: createdOn,
+        timestamp: timestamp,
         status: true,
         message: `Document created successfully.`,
       };
@@ -82,94 +96,53 @@ export class RedisDocumentRepository implements IDocumentRepository {
   }
 
   /**
-   * Updates an existing document identified by id.
-   * Sets updatedOn to current timestamp.
+   * Updates an existing document content.
+   * Identity fields are immutable after creation.
+   * @param id - The document ID to update
+   * @param content - The update new content
+   * @returns DocumentResponse indicating success or failure
+   * @throws Error if Redis operation fails
    */
-  async updateDocument(
+  async updateContent(
     id: string,
-    request: DocumentRequest,
+    content: ContentPayload,
   ): Promise<DocumentResponse> {
+    const timestamp = new Date().toISOString();
+
     try {
       const existing = await this.getDocument(id);
       if (!existing) {
         return {
           documentId: id,
-          timestamp: new Date().toISOString(),
+          timestamp,
           status: false,
           message: `Document with ID ${id} not found.`,
         };
       }
 
-      const oldMeta = await this.getDocumentMetadata(id);
-      if (!oldMeta) {
-        throw new Error(`Metadata for document ${id} not found`);
-      }
+      const documentContent = ContentService.toDocumentContent(content);
 
-      const newUpdatedOn = new Date().toISOString();
-
-      const newDoc: Document = {
+      const updatedDocument: Document = {
         id,
-        userId: request.userId,
-        profileName: request.profileName,
-        languageCode: request.languageCode,
-        content: request.content,
+        userId: existing.userId,
+        profileName: existing.profileName,
+        languageCode: existing.languageCode,
+        content: documentContent,
         createdOn: existing.createdOn,
-        updatedOn: newUpdatedOn,
+        updatedOn: timestamp,
       };
 
-      const newMeta: DocumentMetadata = {
-        id,
-        userId: request.userId,
-        profileName: request.profileName,
-        languageCode: request.languageCode,
-      };
-
-      const oldUniqueKey = `unique:user:${oldMeta.userId}:profile:${oldMeta.profileName}:lang:${oldMeta.languageCode}`;
-      const newUniqueKey = `unique:user:${request.userId}:profile:${request.profileName}:lang:${request.languageCode}`;
-
-      if (oldUniqueKey !== newUniqueKey) {
-        const conflictId = await this.redis.get(newUniqueKey);
-        if (conflictId && conflictId !== id) {
-          return {
-            documentId: id,
-            timestamp: newUpdatedOn,
-            status: false,
-            message: `Duplicate key exists for the given userId, profileName, and languageCode.`,
-          };
-        }
-      }
-
-      await Promise.all([
-        this.redis.set(`doc:${id}`, JSON.stringify(newDoc)),
-        this.redis.set(`meta:${id}`, JSON.stringify(newMeta)),
-        this.redis.set(
-          `unique:user:${request.userId}:profile:${request.profileName}:lang:${request.languageCode}`,
-          id,
-        ),
-      ]);
-
-      if (oldMeta.userId !== request.userId) {
-        await Promise.all([
-          this.redis.srem(`index:user:${oldMeta.userId}:ids`, id),
-          this.redis.sadd(`index:user:${request.userId}:ids`, id),
-        ]);
-      }
-
-      if (oldUniqueKey !== newUniqueKey) {
-        await Promise.all([
-          this.redis.del(oldUniqueKey),
-          this.redis.set(newUniqueKey, id),
-        ]);
-      }
+      await this.redis.set(`doc:${id}`, JSON.stringify(updatedDocument));
 
       return {
         documentId: id,
-        timestamp: newUpdatedOn,
+        timestamp,
         status: true,
-        message: `Document updated successfully.`,
+        message: 'Document content updated successfully.',
       };
     } catch (err: unknown) {
-      throw new Error(`Redis updateDocument failed: ${(err as Error).message}`);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      throw new Error(`Redis updateDocument failed: ${errorMessage}`);
     }
   }
 
@@ -193,7 +166,12 @@ export class RedisDocumentRepository implements IDocumentRepository {
         throw new Error(`Metadata for document ${documentId} not found`);
       }
 
-      const uniqueKey = `unique:user:${meta.userId}:profile:${meta.profileName}:lang:${meta.languageCode}`;
+      const uniqueKey = this.buildUniqueKey(
+        meta.userId,
+        meta.profileName,
+        meta.languageCode,
+      );
+
       const indexKey = `index:user:${meta.userId}:ids`;
       const timestamp = new Date().toISOString();
 
@@ -255,6 +233,30 @@ export class RedisDocumentRepository implements IDocumentRepository {
     return allResponses;
   }
 
+  /**
+   * Retrieves a document by its identity (secondary key).
+   * @param userId - Owner user identifier
+   * @param profileName - Profile name for the document
+   * @param languageCode - ISO language code
+   * @returns The document if found, null otherwise
+   */
+  async getDocumentByIdentity(
+    userId: string,
+    profileName: string,
+    languageCode: string,
+  ): Promise<Document | null> {
+    const uniqueKey = this.buildUniqueKey(userId, profileName, languageCode);
+
+    // Lookup document ID from identity index
+    const documentId = await this.redis.get(uniqueKey);
+
+    if (!documentId) {
+      return null;
+    }
+
+    // Fetch full document using primary key
+    return this.getDocument(documentId);
+  }
   /**
    * Retrieves a document by its ID.
    */

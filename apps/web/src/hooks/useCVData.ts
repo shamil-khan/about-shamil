@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { CVData } from '@/types/cv';
 
 // Static import for now - will be replaced with API call
-import cvDataJson from '@/data/cv-data.json';
+// import cvDataJson from '@/data/cv-data.json';
 
 interface UseCVDataOptions {
   locale?: string;
@@ -31,14 +31,14 @@ export function useCVData(options: UseCVDataOptions = {}): UseCVDataReturn {
         setIsLoading(true);
         setError(null);
 
-        // TODO: Replace with API call when backend is ready
-        // const response = await fetch(`/api/cv?locale=${locale}`);
+        //const response = await fetch(`/api/docs?locale=${locale}`);
         // const json = await response.json();
 
-        // Simulate async behavior for future API compatibility
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
-        setData(cvDataJson as CVData);
+        // const docId = '3bd12092-c84e-4c98-ae7f-27ea27973d23';
+        const response = await fetch(`/api/docs/identity/shamil/default/en`);
+        const json = await response.json();
+        console.log(json);
+        setData(json.content.data as CVData);
       } catch (err) {
         setError(
           err instanceof Error ? err : new Error('Failed to load CV data'),

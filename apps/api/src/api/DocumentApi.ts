@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import {
+  ContentPayload,
   Document,
   DocumentMetadata,
   DocumentRequest,
@@ -61,21 +62,6 @@ export class DocumentApi {
   };
 
   /**
-   * Validates that the essential identity fields are present in the request.
-   * @param request - Partial Document containing identity fields
-   * @throws HTTPException with 400 status if validation fails
-   */
-  private validateIdentity(request: Partial<Document>): void {
-    const { userId, profileName, languageCode } = request;
-    if (!userId || !profileName || !languageCode) {
-      throw new HTTPException(400, {
-        message:
-          'Missing required identity fields: userId, profileName, and languageCode.',
-      });
-    }
-  }
-
-  /**
    * Validates that the request body contains a valid array of IDs.
    * @param ids - The IDs array from request body
    * @throws HTTPException with 400 status if validation fails
@@ -127,7 +113,14 @@ export class DocumentApi {
      */
     this.router.post('/', async (c) => {
       const request = await c.req.json<DocumentRequest>();
-      this.validateIdentity(request);
+      const { userId, profileName, languageCode } = request;
+      if (!userId || !profileName || !languageCode) {
+        throw new HTTPException(400, {
+          message:
+            'Missing required identity fields: userId, profileName, and languageCode.',
+        });
+      }
+
       const response = await this.getRepository(c).addDocument(request);
       return c.json(response, 201);
     });
@@ -247,6 +240,28 @@ export class DocumentApi {
     });
 
     /**
+     * GET /identity/:userId/:profileName/:languageCode
+     * Retrieves a document by its identity (secondary key).
+     */
+    this.router.get(
+      '/identity/:userId/:profileName/:languageCode',
+      async (c) => {
+        const userId = c.req.param('userId');
+        const profileName = c.req.param('profileName');
+        const languageCode = c.req.param('languageCode');
+
+        const document: Document | null = await this.getRepository(
+          c,
+        ).getDocumentByIdentity(userId, profileName, languageCode);
+
+        if (!document) {
+          return c.json({ error: 'Document not found' }, 404);
+        }
+        return c.json(document);
+      },
+    );
+
+    /**
      * GET /:id
      * Retrieves a specific document by ID, including its content.
      */
@@ -263,14 +278,13 @@ export class DocumentApi {
     /**
      * PUT /:id
      * Updates an existing document.
-     * Requires: userId, profileName, languageCode, content
+     * Requires: content
      * Auto-generates: updatedOn
      */
     this.router.put('/:id', async (c) => {
       const id = c.req.param('id');
-      const request = await c.req.json<DocumentRequest>();
-      this.validateIdentity(request);
-      const response = await this.getRepository(c).updateDocument(id, request);
+      const content = await c.req.json<ContentPayload>();
+      const response = await this.getRepository(c).updateContent(id, content);
       return c.json(response);
     });
 

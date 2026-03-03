@@ -1,4 +1,5 @@
 import {
+  ContentPayload,
   Document,
   DocumentMetadata,
   DocumentRequest,
@@ -19,16 +20,15 @@ export interface IDocumentRepository {
   addDocument(request: DocumentRequest): Promise<DocumentResponse>;
 
   /**
-   * Updates an existing document.
+   * Updates the content of an existing document.
+   * Identity fields (userId, profileName, languageCode) remain unchanged.
    * Auto-sets the updatedOn timestamp.
-   * @param id - The ID of the document to update.
-   * @param request - The request @DocumentRequest contains document data to be saved with auto-generated updatedOn.
+   *
+   * @param id - The document ID to update
+   * @param content - The new content payload @DContentPayload .
    * @returns A promise resolving to document response check @DocumentResponse .
    */
-  updateDocument(
-    id: string,
-    request: DocumentRequest,
-  ): Promise<DocumentResponse>;
+  updateContent(id: string, content: ContentPayload): Promise<DocumentResponse>;
 
   /**
    * Deletes a single document from the store, in-case if a user has no more documents in the system it is also deleted.
@@ -57,6 +57,19 @@ export interface IDocumentRepository {
    * @returns A promise resolving to an array of @DocumentResponse related to each user's document deleted.
    */
   deleteUsers(userIds: string[]): Promise<DocumentResponse[]>;
+
+  /**
+   * Retrieves a document by its identity (secondary key).
+   * @param userId - Owner user identifier
+   * @param profileName - Profile name for the document
+   * @param languageCode - ISO language code
+   * @returns The document if found, null otherwise
+   */
+  getDocumentByIdentity(
+    userId: string,
+    profileName: string,
+    languageCode: string,
+  ): Promise<Document | null>;
 
   /**
    * Retrieves a specific document by its unique identifier.
