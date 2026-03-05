@@ -1,70 +1,85 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import strip from 'strip-comments';
 
-// --- ESM __dirname shim ---
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const ROOT_DIR = (() => {
+  // --- ESM __dirname shim ---
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
 
-// --- Configuration ---
-// Script is in root/scripts, so ROOT_DIR is one level up
-const ROOT_DIR = path.resolve(__dirname, '..');
-const outputDir = path.join(ROOT_DIR, 'dist');
+  // --- Configuration ---
+  // Script is in root/scripts, so ROOT_DIR is one level up
+  return path.resolve(__dirname, '..');
+})();
 
-const allowedExtensions = [
-  '.ts',
-  '.tsx',
-  '.css',
-  '.json',
-  '.yaml',
-  '.yml',
-  '.jsonc',
-  '.toml',
-];
-const ignoredDirs = [
-  'node_modules',
-  'dist',
-  '.vscode',
-  '.turbo',
-  '.git',
-  '.wrangler',
-];
-const ignoredFiles = [
-  'package-lock.json',
-  'yarn.lock',
-  'pnpm-lock.yaml',
-  'ai-context.txt',
-  '.env.prod',
-];
+const CONFIG = {
+  allowedExtensions: [
+    '.ts',
+    '.tsx',
+    '.css',
+    '.json',
+    '.yaml',
+    '.yml',
+    '.jsonc',
+    '.toml',
+  ],
+  ignoredDirs: [
+    'node_modules',
+    'dist',
+    '.vscode',
+    '.turbo',
+    '.git',
+    '.wrangler',
+  ],
+  ignoredFiles: [
+    'package-lock.json',
+    'yarn.lock',
+    'pnpm-lock.yaml',
+    'ai-context.txt',
+    '.env.prod',
+  ],
+};
 
-// --- Argument & Output Logic ---
-const pathArgIndex = process.argv.indexOf('--path');
-const relativeTarget =
-  pathArgIndex !== -1 ? process.argv[pathArgIndex + 1] : '';
-const searchPath = path.resolve(ROOT_DIR, relativeTarget);
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const result = { basePath: null, files: [] };
 
-// Generate filename: apps/web -> ai-context-apps.web.txt
-const fileSuffix = relativeTarget
-  ? `-${relativeTarget.replace(/[\\/]/g, '.')}`
-  : '';
-const outputFile = path.join(outputDir, `ai-context${fileSuffix}.txt`);
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--path') result.basePath = args[++i];
+    else if (args[i] === '--files') {
+      // Collect everything after --files until the next flag
+      while (args[i + 1] && !args[i + 1].startsWith('--')) {
+        result.files.push(args[++i]);
+      }
+    }
+  }
+  return result;
+}
 
 // --- Functions ---
-function ensureDirectoryExistence() {
+function getOutputFile(basePath) {
+  const outputDir = path.join(ROOT_DIR, '.dist');
+
+  // Generate filename: apps/web -> ai-context-apps.web.txt
+  const fileSuffix = basePath ? `-${basePath.replace(/[\\/]/g, '.')}` : '';
+  const outputFile = path.join(outputDir, `ai-context${fileSuffix}.txt`);
+
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
+  return outputFile;
 }
 
 function shouldIgnore(filePath) {
   const fileName = path.basename(filePath);
 
-  if (ignoredFiles.includes(fileName)) return true;
+  if (CONFIG.ignoredFiles.includes(fileName)) return true;
   if (fileName.endsWith('.d.ts')) return true;
 
   const relativeFromRoot = path.relative(ROOT_DIR, filePath);
   const pathParts = relativeFromRoot.split(path.sep);
-  return pathParts.some((part) => ignoredDirs.includes(part));
+  return pathParts.some((part) => CONFIG.ignoredDirs.includes(part));
 }
 
 function getAllFiles(dirPath, arrayOfFiles = []) {
@@ -84,7 +99,10 @@ function getAllFiles(dirPath, arrayOfFiles = []) {
       const ext = path.extname(fullPath);
       const fileName = path.basename(fullPath);
 
-      if (allowedExtensions.includes(ext) || fileName.startsWith('.env')) {
+      if (
+        CONFIG.allowedExtensions.includes(ext) ||
+        fileName.startsWith('.env')
+      ) {
         arrayOfFiles.push(fullPath);
       }
     }
@@ -92,22 +110,39 @@ function getAllFiles(dirPath, arrayOfFiles = []) {
   return arrayOfFiles;
 }
 
-// --- Execution ---
-console.log(`🔍 Target Path: ${searchPath}`);
-ensureDirectoryExistence();
-
-const allFiles = getAllFiles(searchPath);
-let combinedContent = '';
-
-allFiles.forEach((file) => {
-  const relativePath = path.relative(ROOT_DIR, file);
-  combinedContent += `\n\n// --- FILE: ${relativePath} ---\n\n`;
-  try {
-    combinedContent += fs.readFileSync(file, 'utf8');
-  } catch (err) {
-    console.error(`Error reading ${file}: ${err}`);
+function main() {
+  const { basePath, files } = parseArgs();
+  if (!basePath) {
+    console.error('❗Error: --path is required.');
+    process.exit(1);
   }
-});
 
-fs.writeFileSync(outputFile, combinedContent);
-console.log(`✨ Successfully generated: ${outputFile}`);
+  const searchPath = path.resolve(ROOT_DIR, basePath);
+
+  // --- Execution ---
+  console.log(`🔍 Target Path: ${searchPath}`);
+  const outputFile = getOutputFile(basePath);
+
+  const allFiles =
+    files.length > 0
+      ? files.map((f) => path.join(basePath, f))
+      : getAllFiles(searchPath);
+
+  let combinedContent = '';
+
+  allFiles.forEach((file) => {
+    const relativePath = path.relative(ROOT_DIR, file);
+    combinedContent += `\n\n// --- FILE: ${relativePath} ---\n\n`;
+    try {
+      const rawCode = fs.readFileSync(file, 'utf8');
+      combinedContent += strip(rawCode);
+    } catch (err) {
+      console.error(`Error reading ${file}: ${err}`);
+    }
+  });
+
+  fs.writeFileSync(outputFile, combinedContent);
+  console.log(`✨ Successfully generated: ${outputFile}`);
+}
+
+main();
