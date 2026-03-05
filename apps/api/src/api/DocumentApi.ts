@@ -8,7 +8,7 @@ import {
   DocumentResponse,
   DocumentStoreResetResponse,
 } from '../data';
-import { IDocumentRepository } from '../repository/IDcoumentRepository';
+import { IDocumentRepository } from '../repository/IDocumentRepository';
 import { RedisDocumentRepository } from '../repository';
 import { AppContext, AppEnv } from '../AppContext';
 import { IUnifiedRedis } from '../libs';

@@ -1,4 +1,4 @@
-import { IDocumentRepository } from '../repository/IDcoumentRepository';
+import { IDocumentRepository } from './IDocumentRepository';
 import {
   ContentPayload,
   Document,
