@@ -1,6 +1,6 @@
 export { Document } from './Document';
 export { DocumentMetadata } from './DocumentMetadata';
-export { DocumentRequest, ContentPayload } from './DocumentRequest';
+export { DocumentApiRequest, ContentPayload } from './DocumentRequest';
 export { DocumentResponse } from './DocumentResponse';
 export { DocumentStoreResetResponse } from './DocumentStoreResetResponse';
 export {

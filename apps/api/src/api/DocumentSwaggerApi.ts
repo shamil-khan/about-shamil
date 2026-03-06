@@ -63,16 +63,12 @@ export class DocumentSwaggerApi {
       tags: [
         { name: 'Documents', description: 'Document CRUD operations' },
         {
-          name: 'Document Metadata',
-          description: 'Document metadata operations',
-        },
-        {
           name: 'User Documents',
           description: 'User-specific document operations',
         },
         {
           name: 'Batch Operations',
-          description: 'Bulk document and user operations',
+          description: 'Bulk document and user operations - SYSTEM ADMIN ONLY',
         },
         { name: 'System', description: 'System administration operations' },
       ],
@@ -213,15 +209,10 @@ export class DocumentSwaggerApi {
               },
             },
           },
-          DocumentRequest: {
+          DocumentApiRequest: {
             type: 'object',
-            required: ['userId', 'profileName', 'languageCode', 'content'],
+            required: ['profileName', 'languageCode', 'content'],
             properties: {
-              userId: {
-                type: 'string',
-                description: 'Owner user identifier',
-                example: 'user_456def',
-              },
               profileName: {
                 type: 'string',
                 description: 'Profile name for the document',
@@ -336,7 +327,9 @@ export class DocumentSwaggerApi {
             tags: ['Documents'],
             summary: 'List all documents metadata',
             description:
-              'Retrieves metadata for all documents in the system. ' +
+              'Retrieves metadata for all documents based on logged-in user role.' +
+              'If logged in user has SYSTEM_ADMIN role, than returns all documents in the system.' +
+              'If logged in user has USER_ADMIN role, than returns all user documents in the system.' +
               'Returns lightweight metadata (excludes content) to prevent loading large content fields into memory.',
             operationId: 'listAllDocuments',
             responses: {
@@ -348,6 +341,14 @@ export class DocumentSwaggerApi {
                       type: 'array',
                       items: { $ref: '#/components/schemas/DocumentMetadata' },
                     },
+                  },
+                },
+              },
+              '403': {
+                description: 'Logged-in user is can not access.',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
                   },
                 },
               },
@@ -373,7 +374,7 @@ export class DocumentSwaggerApi {
               required: true,
               content: {
                 'application/json': {
-                  schema: { $ref: '#/components/schemas/DocumentRequest' },
+                  schema: { $ref: '#/components/schemas/DocumentApiRequest' },
                 },
               },
             },
@@ -407,12 +408,12 @@ export class DocumentSwaggerApi {
             },
           },
         },
-        '/identity/{userId}/{profileName}/{languageCode}': {
+        '/identity/{userId}/{languageCode}?': {
           get: {
             tags: ['Documents'],
             summary: 'Get document by identity',
             description:
-              'Retrieves a document by its identity (secondary key: userId + profileName + languageCode). ' +
+              'Retrieves a document by its identity (secondary key: profileName + languageCode). ' +
               'Useful when the document ID is unknown but identity fields are available.',
             operationId: 'getDocumentByIdentity',
             parameters: [
@@ -425,17 +426,9 @@ export class DocumentSwaggerApi {
                 example: 'user_456def',
               },
               {
-                name: 'profileName',
-                in: 'path',
-                required: true,
-                schema: { type: 'string' },
-                description: 'Profile name for the document',
-                example: 'Professional Resume',
-              },
-              {
                 name: 'languageCode',
                 in: 'path',
-                required: true,
+                required: false,
                 schema: { type: 'string' },
                 description: 'ISO language code',
                 example: 'en',
@@ -589,52 +582,6 @@ export class DocumentSwaggerApi {
                 content: {
                   'application/json': {
                     schema: { $ref: '#/components/schemas/DocumentResponse' },
-                  },
-                },
-              },
-              '404': {
-                description: 'Document not found',
-                content: {
-                  'application/json': {
-                    schema: { $ref: '#/components/schemas/ErrorResponse' },
-                  },
-                },
-              },
-              '500': {
-                description: 'Internal server error',
-                content: {
-                  'application/json': {
-                    schema: { $ref: '#/components/schemas/ErrorResponse' },
-                  },
-                },
-              },
-            },
-          },
-        },
-        '/{id}/metadata': {
-          get: {
-            tags: ['Document Metadata'],
-            summary: 'Get document metadata by ID',
-            description:
-              'Retrieves metadata for a specific document (excludes content). ' +
-              'Useful for listing and indexing without loading large content fields.',
-            operationId: 'getDocumentMetadata',
-            parameters: [
-              {
-                name: 'id',
-                in: 'path',
-                required: true,
-                schema: { type: 'string' },
-                description: 'Unique document identifier',
-                example: 'doc_abc123xyz',
-              },
-            ],
-            responses: {
-              '200': {
-                description: 'Document metadata found',
-                content: {
-                  'application/json': {
-                    schema: { $ref: '#/components/schemas/DocumentMetadata' },
                   },
                 },
               },

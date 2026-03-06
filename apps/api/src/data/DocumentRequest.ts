@@ -17,12 +17,9 @@ export type ContentPayload = {
 };
 
 /**
- * The document request used to create or update a document.
- * Excludes auto-generated fields: id, createdOn, updatedOn.
+ * The document api request used to create or update a document.
  */
-export type DocumentRequest = {
-  /** Owner user identifier */
-  userId: string;
+export type DocumentApiRequest = {
   /** Profile name for the document */
   profileName: string;
   /** ISO language code (e.g., en, es, fr) */

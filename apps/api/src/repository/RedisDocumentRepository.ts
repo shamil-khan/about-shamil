@@ -3,7 +3,6 @@ import {
   ContentPayload,
   Document,
   DocumentMetadata,
-  DocumentRequest,
   DocumentResponse,
   DocumentStoreResetResponse,
 } from '../data';
@@ -40,13 +39,14 @@ export class RedisDocumentRepository implements IDocumentRepository {
    * Persists a new document to the store.
    * Auto-generates id, createdOn, and sets updatedOn to null.
    */
-  async addDocument(request: DocumentRequest): Promise<DocumentResponse> {
+  async addDocument(
+    userId: string,
+    profileName: string,
+    languageCode: string,
+    content: ContentPayload,
+  ): Promise<DocumentResponse> {
     const timestamp = new Date().toISOString();
-    const uniqueKey = this.buildUniqueKey(
-      request.userId,
-      request.profileName,
-      request.languageCode,
-    );
+    const uniqueKey = this.buildUniqueKey(userId, profileName, languageCode);
 
     try {
       const existingId = await this.redis.get(uniqueKey);
@@ -63,17 +63,17 @@ export class RedisDocumentRepository implements IDocumentRepository {
 
       const document: Document = {
         id,
-        userId: request.userId,
-        profileName: request.profileName,
-        languageCode: request.languageCode,
-        content: ContentService.toDocumentContent(request.content),
+        userId: userId,
+        profileName: profileName,
+        languageCode: languageCode,
+        content: ContentService.toDocumentContent(content),
         createdOn: timestamp,
       };
       const metadata: DocumentMetadata = toDocumentMetadata(document);
 
       const primaryKey = `doc:${id}`;
       const metaKey = `meta:${id}`;
-      const userIndexKey = `index:user:${request.userId}:ids`;
+      const userIndexKey = `index:user:${userId}:ids`;
 
       await Promise.all([
         this.redis.set(primaryKey, JSON.stringify(document)),
@@ -81,7 +81,7 @@ export class RedisDocumentRepository implements IDocumentRepository {
         this.redis.set(uniqueKey, id),
         this.redis.sadd(userIndexKey, id),
         this.redis.sadd(this.GLOBAL_DOC_INDEX_KEY, id),
-        this.redis.sadd(this.USER_INDEX_KEY, request.userId),
+        this.redis.sadd(this.USER_INDEX_KEY, userId),
       ]);
 
       return {

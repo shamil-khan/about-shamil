@@ -2,7 +2,6 @@ import {
   ContentPayload,
   Document,
   DocumentMetadata,
-  DocumentRequest,
   DocumentResponse,
   DocumentStoreResetResponse,
 } from '../data';
@@ -17,7 +16,12 @@ export interface IDocumentRepository {
    * @param request - The request @DocumentRequest contains document data to be saved with auto-generated id/createdOn.
    * @returns A promise resolving to document response check @DocumentResponse .
    */
-  addDocument(request: DocumentRequest): Promise<DocumentResponse>;
+  addDocument(
+    userId: string,
+    profileName: string,
+    languageCode: string,
+    content: ContentPayload,
+  ): Promise<DocumentResponse>;
 
   /**
    * Updates the content of an existing document.
