@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import type { CVData } from '@/types/cv';
-
 // Static import for now - will be replaced with API call
 // import cvDataJson from '@/data/cv-data.json';
+import { documentApiClientSafe } from '@/api-wrappers/DocumentApi/DocumentApiClient';
+import { toast } from 'sonner';
 
 interface UseCVDataOptions {
   locale?: string;
@@ -30,15 +31,25 @@ export function useCVData(options: UseCVDataOptions = {}): UseCVDataReturn {
       try {
         setIsLoading(true);
         setError(null);
+        // setData(cvDataJson as CVData);
 
-        //const response = await fetch(`/api/docs?locale=${locale}`);
-        // const json = await response.json();
+        const response = await documentApiClientSafe.getIdentity('test-user');
+        console.log('reponse', response);
+        if (!response.success) {
+          toast.error(`Failed to load document: ${response.error}`);
+          return;
+        }
+        const document = response.data;
+        if (document.content.type === 'inline') {
+          console.log('reponse - content', document.content);
+          setData(document.content.data as CVData);
+        } else if (document.content.type === 'chunked') {
+          toast.error(`Failed to load document: ${document.content}`);
+        } else if (document.content.type === 'external') {
+          toast.error(`Failed to load document: ${document.content}`);
+        }
 
-        // const docId = '3bd12092-c84e-4c98-ae7f-27ea27973d23';
-        const response = await fetch(`/api/docs/identity/shamil/default/en`);
-        const json = await response.json();
-        console.log(json);
-        setData(json.content.data as CVData);
+        console.log('reponse', response);
       } catch (err) {
         setError(
           err instanceof Error ? err : new Error('Failed to load CV data'),

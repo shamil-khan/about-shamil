@@ -67,7 +67,6 @@ export function ViewableCVPage() {
         activeSection={activeSection}
         onNavClick={scrollToSection}
       />
-      <span>Hello 11-33</span>
       <main>
         <HeaderSection data={data.header} onScrollDown={handleScrollDown} />
         <SummarySection data={data.summary} />

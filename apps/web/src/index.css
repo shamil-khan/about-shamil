@@ -22,7 +22,7 @@
   --color-accent: oklch(0.97 0 0);
   --color-accent-foreground: oklch(0.205 0 0);
   --color-destructive: oklch(0.577 0.245 27.325);
-  --color-destructive-foreground: oklch(0.577 0.245 27.325);
+  --color-destructive-foreground: oklch(1 0 0); /* oklch(0.577 0.245 27.325); */
   --color-border: oklch(0.922 0 0);
   --color-input: oklch(0.922 0 0);
   --color-ring: oklch(0.708 0 0);
@@ -50,7 +50,7 @@
   --app-text-body: #334155;
   --app-text-muted: #64748b;
   --app-border: #cbd5e1;
-  --app-accent: #dc2626;
+  --app-accent: oklch(0.546 0.245 262.881); /* #dc2626; */
   --app-nav-active-bg: #e2e8f0;
   --app-nav-active-text: #0f172a;
   --app-nav-inactive-text: #64748b;
@@ -99,6 +99,24 @@
   --app-motion-base: 0.45s;
   --app-motion-slow: 0.65s;
   --app-ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@theme inline {
+  /* Your existing stuff stays... */
+
+  /* ADD: Bridge shadcn to your app theme (compact) */
+  --color-background: var(--app-page-bg);
+  --color-foreground: var(--app-text-body);
+  --color-card: var(--app-surface-bg);
+  --color-card-foreground: var(--app-text-body);
+  --color-primary: var(--app-accent);
+  --color-primary-foreground: #ffffff;
+  --color-muted: var(--app-surface-alt);
+  --color-muted-foreground: var(--app-text-muted);
+  --color-destructive: #ef4444;
+  --color-border: var(--app-border);
+  --color-input: var(--app-border);
+  --color-ring: var(--app-accent);
 }
 
 @layer base {
@@ -163,7 +181,7 @@
   --app-text-body: #d6e2f3;
   --app-text-muted: #b7c8e2;
   --app-border: #30415b;
-  --app-accent: #f7a7a7;
+  --app-accent: oklch(43.96% 0.10219 243.661); /* #f7a7a7; */
   --app-nav-active-bg: #1b273c;
   --app-nav-active-text: #f7fbff;
   --app-nav-inactive-text: #b7c8e2;

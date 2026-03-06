@@ -348,7 +348,10 @@ export class DocumentApi {
         return c.json(document);
       }
 
-      return c.json({ error: 'Document not found' }, 404);
+      return c.json(
+        { error: 'Document not found', userId, finalLanguageCode },
+        404,
+      );
     });
 
     /**
