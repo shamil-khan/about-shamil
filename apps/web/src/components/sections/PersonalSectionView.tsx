@@ -94,7 +94,7 @@ export function PersonalSectionView({
       <div className='container mx-auto px-4 py-16 md:py-24'>
         <div className='max-w-4xl mx-auto text-center'>
           {/* Avatar */}
-          <Avatar className='w-32 h-32 md:w-40 md:h-40 mx-auto mb-6 ring-4 ring-background shadow-xl'>
+          <Avatar className='w-32 h-32 md:w-40 md:h-40 mx-auto mb-6 ring-4 ring-background shadow-xl transition-transform duration-300 hover:scale-105'>
             <AvatarImage
               src={section.info.photo || '/photo.png'}
               alt={section.info.name}

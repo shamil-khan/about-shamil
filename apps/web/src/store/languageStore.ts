@@ -22,15 +22,19 @@ function getInitialLanguage(): LanguageCode {
   return lang ? (browserLang as LanguageCode) : DEFAULT_LANGUAGE;
 }
 
-function updateDocumentDirection(code: LanguageCode): void {
+function applyLanguageToDocument(code: LanguageCode): void {
   if (typeof window === 'undefined') return;
 
   const lang = getLanguageByCode(code);
-  if (lang) {
-    document.documentElement.lang = lang.code;
-    document.documentElement.dir = lang.dir;
-  }
+  if (!lang) return;
+
+  const root = document.documentElement;
+  root.setAttribute('lang', lang.code);
+  root.setAttribute('dir', lang.dir);
 }
+
+// Apply initial language to document immediately
+applyLanguageToDocument(getInitialLanguage());
 
 export const useLanguageStore = create<LanguageState>()(
   persist(
@@ -38,15 +42,18 @@ export const useLanguageStore = create<LanguageState>()(
       language: getInitialLanguage(),
 
       setLanguage: (code) => {
+        const lang = getLanguageByCode(code);
+        if (!lang) return;
+
+        applyLanguageToDocument(code);
         set({ language: code });
-        updateDocumentDirection(code);
       },
     }),
     {
       name: 'language',
       onRehydrateStorage: () => (state) => {
-        if (state) {
-          updateDocumentDirection(state.language);
+        if (state?.language) {
+          applyLanguageToDocument(state.language);
         }
       },
     },

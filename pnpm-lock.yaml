@@ -87,6 +87,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@fontsource/noto-nastaliq-urdu':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@radix-ui/react-avatar':
         specifier: ^1.1.11
         version: 1.1.11(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -570,6 +573,9 @@ packages:
 
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
+
+  '@fontsource/noto-nastaliq-urdu@5.2.8':
+    resolution: {integrity: sha512-Bgb/sxhDEU7zm5/9R+GL5BfMSifYhwnB0kQX9fBOPhzjprqrYcDJL/mLUe7ZcZz2H0KIVWZahIzlaovUaqEhDg==}
 
   '@hono/swagger-ui@0.5.3':
     resolution: {integrity: sha512-Hn90DOOJ62ICJQplQvCDVpi9Jcn6EhtRaiffyJIS53wA5RmRLtMCDQGVc0bor8vQD7JIwpkweWjs+3cycp+IvA==}
@@ -3103,6 +3109,8 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
 
   '@floating-ui/utils@0.2.11': {}
+
+  '@fontsource/noto-nastaliq-urdu@5.2.8': {}
 
   '@hono/swagger-ui@0.5.3(hono@4.12.5)':
     dependencies:
