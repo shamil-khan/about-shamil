@@ -3,20 +3,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SectionWrapper } from './SectionWrapper';
 import { SectionTitle } from './SectionTitle';
-import type { Education } from '@/types/cv';
+import type { EducationSection } from 'cv-processor';
 
-interface EducationSectionProps {
-  data: Education[];
+interface EducationSectionViewProps {
+  section: EducationSection;
 }
 
-export function EducationSection({ data }: EducationSectionProps) {
+export function EducationSectionView({ section }: EducationSectionViewProps) {
   return (
-    <SectionWrapper id='education' className='py-16 md:py-24 app-transition'>
+    <SectionWrapper id={section.id} className='py-16 md:py-24 app-transition'>
       <div className='container mx-auto px-4'>
         <div className='max-w-4xl mx-auto'>
-          <SectionTitle>Education</SectionTitle>
+          <SectionTitle>{section.title}</SectionTitle>
           <div className='grid gap-6'>
-            {data.map((edu, index) => (
+            {section.educations.map((edu, index) => (
               <Card
                 key={index}
                 className='group app-theme-card-hover app-theme-card-highlight'>
@@ -38,7 +38,7 @@ export function EducationSection({ data }: EducationSectionProps) {
                         </div>
                         <span className='flex items-center gap-1 text-sm app-theme-muted'>
                           <Calendar className='h-3 w-3' />
-                          {edu.duration}
+                          {edu.duration.from} - {edu.duration.to}
                         </span>
                       </div>
 

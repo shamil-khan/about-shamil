@@ -1,16 +1,13 @@
 import { useState, useEffect } from 'react';
-import type { CVData } from '@/types/cv';
 import { documentApiClientSafe } from '@/api-wrappers/DocumentApi/DocumentApiClient';
-import { toast } from 'sonner';
-// Static import for now - will be replaced with API call
-import cvDataJson from '@/data/cv-data.json';
+import { createCVProcessor, type CVDocument } from 'cv-processor';
 
 interface UseCVDataOptions {
   locale?: string;
 }
 
 interface UseCVDataReturn {
-  data: CVData | null;
+  cvDocument: CVDocument | null;
   isLoading: boolean;
   error: Error | null;
   isRTL: boolean;
@@ -20,7 +17,7 @@ const RTL_LOCALES = ['ar', 'he', 'fa', 'ur'];
 
 export function useCVData(options: UseCVDataOptions = {}): UseCVDataReturn {
   const { locale = 'en' } = options;
-  const [data, setData] = useState<CVData | null>(null);
+  const [cvDocument, setCVDocument] = useState<CVDocument | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -29,31 +26,33 @@ export function useCVData(options: UseCVDataOptions = {}): UseCVDataReturn {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const useApi = false;
         setIsLoading(true);
         setError(null);
 
-        if (useApi) {
-          const response = await documentApiClientSafe.getIdentity('test-user');
-          console.log('reponse', response);
-          if (!response.success) {
-            toast.error(`Failed to load document: ${response.error}`);
-            return;
-          }
-          const document = response.data;
-          if (document.content.type === 'inline') {
-            console.log('reponse - content', document.content);
-            setData(document.content.data as CVData);
-          } else if (document.content.type === 'chunked') {
-            toast.error(`Failed to load document: ${document.content}`);
-          } else if (document.content.type === 'external') {
-            toast.error(`Failed to load document: ${document.content}`);
-          }
+        const response = await documentApiClientSafe.getIdentity(
+          'test-user',
+          locale,
+        );
 
-          console.log('reponse', response);
-        } else {
-          setData(cvDataJson as CVData);
+        if (!response.success) {
+          setError(new Error(`Api response is failed. reponse: ${response}`));
+          return;
         }
+
+        if (response.data.content.type !== 'inline') {
+          setError(
+            new Error(
+              `Content type is not supported. document: ${response.data}`,
+            ),
+          );
+          return;
+        }
+
+        const rawContent = response.data.content.data;
+        const processor = createCVProcessor();
+        const document = processor.parseContent(rawContent, 'yaml');
+        console.log(document, document);
+        setCVDocument(document);
       } catch (err) {
         setError(
           err instanceof Error ? err : new Error('Failed to load CV data'),
@@ -66,5 +65,5 @@ export function useCVData(options: UseCVDataOptions = {}): UseCVDataReturn {
     fetchData();
   }, [locale]);
 
-  return { data, isLoading, error, isRTL };
+  return { cvDocument, isLoading, error, isRTL };
 }

@@ -1,34 +1,45 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, type JSX } from 'react';
 import { AppNavbar, type AppNavItem, ScrollToTop } from '@/components/layout';
 import {
-  HeaderSection,
-  SummarySection,
-  SkillsSection,
-  ExperienceSection,
-  EducationSection,
-  AwardsSection,
-  AdditionalSection,
+  PersonalSectionView,
+  EducationSectionView,
+  ExperienceSectionView,
+  ValueSectionView,
+  LabelValue1SectionView,
+  LabelValue2SectionView,
+  LabelValuesSectionView,
   FooterSection,
 } from '@/components/sections';
 import { useCVData, useActiveSection } from '@/hooks';
 import { useLanguageStore, selectLanguage } from '@/store';
+import {
+  type EducationSection,
+  type ExperienceSection,
+  type ISection,
+  type LabelValue1Section,
+  type LabelValue2Section,
+  type LabelValuesSection,
+  type PersonalSection,
+  type ValueSection,
+} from 'cv-processor';
 
 export function ViewableCVPage() {
   const language = useLanguageStore(selectLanguage);
-  const { data, isLoading, error } = useCVData({ locale: language });
+  const { cvDocument, isLoading, error } = useCVData({
+    locale: language,
+  });
 
-  const navItems: AppNavItem[] = useMemo(
-    () => [
-      { id: 'header', label: 'Home' },
-      { id: 'summary', label: 'About' },
-      { id: 'skills', label: 'Skills' },
-      { id: 'experience', label: 'Experience' },
-      { id: 'education', label: 'Education' },
-      { id: 'awards', label: 'Awards' },
-      { id: 'additional', label: 'Info' },
-    ],
-    [],
-  );
+  const navItems: AppNavItem[] = useMemo(() => {
+    return cvDocument && cvDocument.sections.length > 0
+      ? cvDocument?.sections.map(
+          (section) =>
+            ({
+              id: section.id,
+              label: section.name,
+            }) as AppNavItem,
+        )
+      : [];
+  }, [cvDocument]);
 
   const sectionIds = useMemo(() => navItems.map((item) => item.id), [navItems]);
   const activeSection = useActiveSection(sectionIds);
@@ -41,8 +52,10 @@ export function ViewableCVPage() {
   }, []);
 
   const handleScrollDown = useCallback(() => {
-    scrollToSection('summary');
-  }, [scrollToSection]);
+    if (cvDocument && cvDocument.sections.length >= 1) {
+      scrollToSection(cvDocument?.sections[1].id);
+    }
+  }, [scrollToSection, cvDocument]);
 
   if (isLoading) {
     return (
@@ -52,13 +65,77 @@ export function ViewableCVPage() {
     );
   }
 
-  if (error || !data) {
+  if (error || !cvDocument) {
     return (
       <div className='min-h-screen app-theme-page app-transition flex items-center justify-center'>
-        <div className='text-destructive'>Failed to load CV data</div>
+        <div className='text-destructive'>Failed to load CV Document</div>
       </div>
     );
   }
+
+  const getSectionView = (section: ISection): JSX.Element => {
+    let view: JSX.Element = <div key={section.id} />;
+    switch (section.type) {
+      case 'personal-section':
+        view = (
+          <PersonalSectionView
+            key={section.id}
+            section={section as PersonalSection}
+            onScrollDown={handleScrollDown}
+          />
+        );
+        break;
+      case 'education-section':
+        view = (
+          <EducationSectionView
+            key={section.id}
+            section={section as EducationSection}
+          />
+        );
+        break;
+      case 'experience-section':
+        view = (
+          <ExperienceSectionView
+            key={section.id}
+            section={section as ExperienceSection}
+          />
+        );
+        break;
+      case 'value-section':
+        view = (
+          <ValueSectionView
+            key={section.id}
+            section={section as ValueSection}
+          />
+        );
+        break;
+      case 'label-value1-section':
+        view = (
+          <LabelValue1SectionView
+            key={section.id}
+            section={section as LabelValue1Section}
+          />
+        );
+        break;
+      case 'label-value2-section':
+        view = (
+          <LabelValue2SectionView
+            key={section.id}
+            section={section as LabelValue2Section}
+          />
+        );
+        break;
+      case 'label-values-section':
+        view = (
+          <LabelValuesSectionView
+            key={section.id}
+            section={section as LabelValuesSection}
+          />
+        );
+        break;
+    }
+    return view;
+  };
 
   return (
     <div className='min-h-screen app-theme-page app-transition'>
@@ -68,16 +145,9 @@ export function ViewableCVPage() {
         onNavClick={scrollToSection}
       />
       <main>
-        <HeaderSection data={data.header} onScrollDown={handleScrollDown} />
-        <SummarySection data={data.summary} />
-        <SkillsSection data={data.skills} />
-        <ExperienceSection data={data.experience} />
-        <EducationSection data={data.education} />
-        <AwardsSection data={data.awards} />
-        <AdditionalSection data={data.additional} />
-        <FooterSection name={data.header.name} />
+        {cvDocument.sections.map((section) => getSectionView(section))}
+        <FooterSection name='Shamil Khan' />
       </main>
-
       <ScrollToTop />
     </div>
   );

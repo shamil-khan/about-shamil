@@ -37,7 +37,8 @@ export type ApiResult<T> =
  * Base URL for the document API.
  * Loaded from environment variables with fallback for development.
  */
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8787';
 
 if (!API_BASE_URL) {
   console.log('Api base Url is not valid', API_BASE_URL);

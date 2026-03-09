@@ -2,36 +2,38 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SectionWrapper } from './SectionWrapper';
 import { SectionTitle } from './SectionTitle';
-import type { Skill } from '@/types/cv';
+import type { LabelValuesSection } from 'cv-processor';
 
-interface SkillsSectionProps {
-  data: Skill[];
+interface LabelValuesSectionViewProps {
+  section: LabelValuesSection;
 }
 
-export function SkillsSection({ data }: SkillsSectionProps) {
+export function LabelValuesSectionView({
+  section,
+}: LabelValuesSectionViewProps) {
   return (
-    <SectionWrapper id='skills' className='py-16 md:py-24 app-transition'>
+    <SectionWrapper id={section.id} className='py-16 md:py-24 app-transition'>
       <div className='container mx-auto px-4'>
         <div className='max-w-6xl mx-auto'>
-          <SectionTitle>Skills</SectionTitle>
+          <SectionTitle>{section.title}</SectionTitle>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6'>
-            {data.map((skill, index) => (
+            {section.labels.map((item, itemIndex) => (
               <Card
-                key={index}
+                key={itemIndex}
                 className='group app-theme-card-hover app-theme-card-highlight'>
                 <CardHeader className='pb-3'>
                   <CardTitle className='text-lg font-semibold app-theme-card-title'>
-                    {skill.category}
+                    {item.label}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className='flex flex-wrap gap-2'>
-                    {skill.items.map((item, itemIndex) => (
+                    {item.values.map((value, valueIndex) => (
                       <Badge
-                        key={itemIndex}
+                        key={valueIndex}
                         variant='outline'
                         className='app-theme-skill-badge app-transition'>
-                        {item}
+                        {value}
                       </Badge>
                     ))}
                   </div>

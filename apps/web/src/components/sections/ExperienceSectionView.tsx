@@ -2,26 +2,26 @@ import { Briefcase, MapPin, Calendar } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { SectionWrapper } from './SectionWrapper';
 import { SectionTitle } from './SectionTitle';
-import type { Experience } from '@/types/cv';
+import type { ExperienceSection } from 'cv-processor';
 
-interface ExperienceSectionProps {
-  data: Experience[];
+interface ExperienceSectionViewProps {
+  section: ExperienceSection;
 }
 
-export function ExperienceSection({ data }: ExperienceSectionProps) {
+export function ExperienceSectionView({ section }: ExperienceSectionViewProps) {
   return (
     <SectionWrapper
-      id='experience'
+      id={section.id}
       className='py-16 md:py-24 app-theme-alt-surface app-transition'>
       <div className='container mx-auto px-4'>
         <div className='max-w-4xl mx-auto'>
-          <SectionTitle>Experience</SectionTitle>
+          <SectionTitle>{section.title}</SectionTitle>
           <div className='relative'>
             {/* Timeline Line */}
             <div className='absolute inset-s-0 md:inset-s-8 top-0 bottom-0 w-px app-theme-timeline-line hidden md:block' />
 
             <div className='space-y-6'>
-              {data.map((exp, index) => (
+              {section.experiences.map((exp, index) => (
                 <div key={index} className='relative md:ps-20'>
                   {/* Timeline Dot */}
                   <div className='absolute inset-s-0 md:inset-s-6 top-6 w-4 h-4 rounded-full border-4 app-theme-timeline-dot hidden md:block' />
@@ -45,7 +45,7 @@ export function ExperienceSection({ data }: ExperienceSectionProps) {
                             <div className='flex flex-col sm:items-end gap-1 text-sm app-theme-muted'>
                               <span className='flex items-center gap-1'>
                                 <Calendar className='h-3 w-3' />
-                                {exp.duration}
+                                {exp.duration.from} - {exp.duration.to}
                               </span>
                               <span className='flex items-center gap-1'>
                                 <MapPin className='h-3 w-3' />

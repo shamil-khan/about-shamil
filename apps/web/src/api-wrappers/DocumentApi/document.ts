@@ -75,7 +75,7 @@ export type InlineContent = {
   /** Discriminant type identifier */
   readonly type: 'inline';
   /** Content data (Base64 encoded for binary, plain text for text formats) */
-  readonly data: object | string;
+  readonly data: string;
   /** MIME type of the content */
   readonly mimeType: MimeType;
   /** Original filename */
