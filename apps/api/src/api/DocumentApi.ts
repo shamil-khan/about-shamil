@@ -349,7 +349,11 @@ export class DocumentApi {
       }
 
       return c.json(
-        { error: 'Document not found', userId, finalLanguageCode },
+        {
+          error: 'Document not found',
+          userId,
+          lanugageCode: finalLanguageCode,
+        },
         404,
       );
     });

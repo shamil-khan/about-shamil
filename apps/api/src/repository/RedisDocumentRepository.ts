@@ -32,8 +32,10 @@ export class RedisDocumentRepository implements IDocumentRepository {
     userId: string,
     profileName: string,
     languageCode: string,
-  ): string =>
-    `unique:user:${userId}:profile:${profileName}:lang:${languageCode}`;
+  ): string => {
+    const code = languageCode.toLocaleLowerCase();
+    return `unique:user:${userId.toLocaleLowerCase(code)}:profile:${profileName.toLocaleLowerCase(code)}:lang:${code}`;
+  };
 
   /**
    * Persists a new document to the store.
@@ -132,7 +134,13 @@ export class RedisDocumentRepository implements IDocumentRepository {
         updatedOn: timestamp,
       };
 
-      await this.redis.set(`doc:${id}`, JSON.stringify(updatedDocument));
+      const updatedMetadata: DocumentMetadata =
+        toDocumentMetadata(updatedDocument);
+
+      await Promise.all([
+        await this.redis.set(`doc:${id}`, JSON.stringify(updatedDocument)),
+        await this.redis.set(`meta:${id}`, JSON.stringify(updatedMetadata)),
+      ]);
 
       return {
         documentId: id,
