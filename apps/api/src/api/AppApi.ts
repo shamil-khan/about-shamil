@@ -25,17 +25,19 @@ export class AppApi {
     //create redis connection for every request start from /api.
     this.router.use('*', async (c, next) => {
       const log = c.get('logger');
-      const url = c.env.IS_DEVELOPMENT
-        ? c.env.REDIS_URL
-        : c.env.UPSTASH_REDIS_REST_URL;
+      const url =
+        c.env.IS_DEVELOPMENT === 'true'
+          ? c.env.REDIS_URL
+          : c.env.UPSTASH_REDIS_REST_URL;
 
       if (!url) {
         log.warn({}, 'Redis URL not configured');
       } else {
         try {
-          const redisInstance = c.env.IS_DEVELOPMENT
-            ? getRedis(url)
-            : getRedis(url, c.env.UPSTASH_REDIS_REST_TOKEN);
+          const redisInstance =
+            c.env.IS_DEVELOPMENT === 'true'
+              ? getRedis(url)
+              : getRedis(url, c.env.UPSTASH_REDIS_REST_TOKEN);
 
           c.set('redis', redisInstance);
         } catch (error: unknown) {
@@ -53,16 +55,23 @@ export class AppApi {
   private registerRoutes = () => {
     this.router.get('/info', (c) => {
       const { APP_NAME, APP_VERSION, IS_DEVELOPMENT } = c.env;
-      const redisUrl = c.env.IS_DEVELOPMENT
-        ? c.env.REDIS_URL
-        : c.env.UPSTASH_REDIS_REST_URL;
+      const redisUrl =
+        c.env.IS_DEVELOPMENT === 'true'
+          ? c.env.REDIS_URL
+          : c.env.UPSTASH_REDIS_REST_URL;
 
       return c.json({
         name: APP_NAME,
         version: APP_VERSION,
-        isDevelopment: IS_DEVELOPMENT ? 'YES' : 'NO',
+        isDevelopment: IS_DEVELOPMENT == 'true' ? 'YES' : 'NO',
         redisConfigured: redisUrl ? 'YES' : 'NO',
       });
+    });
+
+    this.router.get('/ping', async (c) => {
+      const redis = c.get('redis');
+      const response = await redis.ping();
+      return c.json(response);
     });
   };
 }

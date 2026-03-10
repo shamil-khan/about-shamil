@@ -58,7 +58,7 @@ class App {
         return c.json({
           status: 'ok',
           timestamp: time,
-          message: `API (${c.env.APP_VERSION}) is working fine! (${time.slice(11, 19)})`,
+          message: `${c.env.APP_NAME} - API (${c.env.APP_VERSION}) is working fine! (${time.slice(11, 19)})`,
         });
       });
   };
@@ -73,9 +73,10 @@ class App {
 
       if (res.status !== 404) {
         const newRes = new Response(res.body, res);
-        const cacheControl = c.env.IS_DEVELOPMENT
-          ? 'no-cache, no-store, must-revalidate'
-          : 'public, max-age=31536000';
+        const cacheControl =
+          c.env.IS_DEVELOPMENT === 'true'
+            ? 'no-cache, no-store, must-revalidate'
+            : 'public, max-age=31536000';
         newRes.headers.set('Cache-Control', cacheControl);
         return newRes;
       }

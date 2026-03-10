@@ -2,6 +2,7 @@
  * IUnifiedRedis: Normalizes differences between Upstash REST and Local TCP clients.
  */
 export interface IUnifiedRedis {
+  ping(): Promise<string | null>;
   /** Retrieves a string value by key */
   get(key: string): Promise<string | null>;
   /** Retrieves multiple string values by keys */

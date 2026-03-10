@@ -1,0 +1,20 @@
+name = "about"
+main = "src/index.ts"
+compatibility_date = "2026-02-28"
+compatibility_flags = [ "nodejs_compat" ]
+
+[assets]
+directory = "../web/dist"
+binding = "ASSETS"
+not_found_handling = "404-page"
+run_worker_first = true
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[vars]
+APP_NAME = "About Shamil"
+APP_VERSION = "1.0.0"
+IS_DEVELOPMENT="false"
+UPSTASH_REDIS_REST_URL="https://assured-yak-66684.upstash.io"

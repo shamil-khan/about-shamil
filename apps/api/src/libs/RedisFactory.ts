@@ -15,6 +15,9 @@ export function getRedis(url: string, token?: string): IUnifiedRedis {
   if (token) {
     const upstash = new UpstashRedis({ url: url, token: token });
     return {
+      ping: async () => {
+        return await upstash.ping();
+      },
       get: async (key: string) => {
         const val = await upstash.get(key);
         return typeof val === 'string' ? val : JSON.stringify(val);
@@ -56,7 +59,12 @@ export function getRedis(url: string, token?: string): IUnifiedRedis {
 
   // --- LOCAL / DOCKER (TCP via redis-on-workers) ---
   const local = createLocalRedis(url);
+
   return {
+    ping: async () => {
+      const res = await local.send('PING');
+      return res as string | null;
+    },
     get: async (key: string) => {
       const res = await local.send('GET', key);
       return res as string | null;

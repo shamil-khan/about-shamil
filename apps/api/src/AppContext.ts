@@ -5,7 +5,7 @@ import { IUnifiedRedis } from './libs';
 export interface CloudflareBindings {
   APP_NAME: string;
   APP_VERSION: string;
-  IS_DEVELOPMENT: boolean;
+  IS_DEVELOPMENT: string;
   REDIS_URL?: string;
   UPSTASH_REDIS_REST_URL?: string;
   UPSTASH_REDIS_REST_TOKEN?: string;
