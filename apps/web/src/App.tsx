@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import {
+  CVPrintPage_Main,
   ViewableCVPage,
   PrintableCVPage,
   SystemAdminPage,
@@ -11,7 +12,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<ViewableCVPage />} />
-        <Route path='/print' element={<PrintableCVPage />} />
+        <Route path='/print-backup' element={<PrintableCVPage />} />
+        <Route path='/print' element={<CVPrintPage_Main />} />
         <Route path='/system-admin' element={<SystemAdminPage />} />
         <Route path='/user-admin' element={<UserAdminPage />} />
       </Routes>

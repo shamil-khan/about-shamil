@@ -1,4 +1,5 @@
-export { ViewableCVPage } from './ViewableCVPage';
-export { PrintableCVPage } from './PrintableCVPage';
-export { SystemAdminPage } from './SystemAdminPage';
-export { UserAdminPage } from './UserAdminPage';
+export * from './CVPrintPage';
+export * from './ViewableCVPage';
+export * from './PrintableCVPage';
+export * from './SystemAdminPage';
+export * from './UserAdminPage';
