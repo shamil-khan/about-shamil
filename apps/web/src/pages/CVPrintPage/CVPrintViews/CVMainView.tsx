@@ -1,15 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { useLanguageStore, selectLanguage } from '@/store';
-import { useCVData } from '@/hooks';
+import { useCVDocument } from '@/hooks';
 import { useCVPrintDocument, CVScreenContent } from '.';
 
 const PRINT_TITLE = 'Shamil Ahmed';
 
 export function CVMainView() {
-  const language = useLanguageStore(selectLanguage);
-  const { cvDocument, isLoading, error } = useCVData({
-    locale: language,
-  });
+  const { cvDocument, isLoading, error } = useCVDocument();
 
   const screenLayoutRef = useRef<HTMLDivElement>(null);
   const { printSourceRef, printOutputRef } = useCVPrintDocument({

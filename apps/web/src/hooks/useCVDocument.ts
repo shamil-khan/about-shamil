@@ -1,27 +1,19 @@
 import { useState, useEffect } from 'react';
 import { documentApiClientSafe } from '@/api-wrappers/DocumentApi/DocumentApiClient';
 import { createCVProcessor, type CVDocument } from 'cv-processor';
+import { selectLanguage, useLanguageStore } from '@/store';
 
-interface UseCVDataOptions {
-  locale?: string;
-}
-
-interface UseCVDataReturn {
+interface UseCVDocumentReturn {
   cvDocument: CVDocument | null;
   isLoading: boolean;
   error: Error | null;
-  isRTL: boolean;
 }
 
-const RTL_LOCALES = ['ar', 'he', 'fa', 'ur'];
-
-export function useCVData(options: UseCVDataOptions = {}): UseCVDataReturn {
-  const { locale = 'en' } = options;
+export function useCVDocument(): UseCVDocumentReturn {
+  const language = useLanguageStore(selectLanguage);
   const [cvDocument, setCVDocument] = useState<CVDocument | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-
-  const isRTL = RTL_LOCALES.includes(locale.split('-')[0]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,7 +23,7 @@ export function useCVData(options: UseCVDataOptions = {}): UseCVDataReturn {
 
         const response = await documentApiClientSafe.getIdentity(
           'test-user',
-          locale,
+          language,
         );
 
         if (!response.success) {
@@ -63,7 +55,7 @@ export function useCVData(options: UseCVDataOptions = {}): UseCVDataReturn {
     };
 
     fetchData();
-  }, [locale]);
+  }, [language]);
 
-  return { cvDocument, isLoading, error, isRTL };
+  return { cvDocument, isLoading, error };
 }

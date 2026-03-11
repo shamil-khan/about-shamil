@@ -5,16 +5,14 @@ import {
   toSocialBrand,
   type SocialBrand,
 } from '@/components/social-brands';
-import { selectLanguage, useLanguageStore } from '@/store';
-import { isRTLLanguage } from '@/config';
+import { selectIsRTL, useLanguageStore } from '@/store';
 
 interface PersonalSectionViewProps {
   section: PersonalSection;
 }
 
 export function PersonalSectionView({ section }: PersonalSectionViewProps) {
-  const language = useLanguageStore(selectLanguage);
-  const isRTL = isRTLLanguage(language);
+  const isRTL = useLanguageStore(selectIsRTL);
   const titleTokens = section.info.titles.join(' \u00B7 ').split(/(\s+)/);
   const socialBrands: SocialBrand[] = section.info.social.map((entry) =>
     toSocialBrand(entry),

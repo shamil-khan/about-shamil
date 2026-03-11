@@ -9,8 +9,7 @@ import {
   type PersonalSection,
   type ValueSection,
 } from 'cv-processor';
-import { useCVData, useActiveSection } from '@/hooks';
-import { useLanguageStore, selectLanguage } from '@/store';
+import { useActiveSection, useCVDocument } from '@/hooks';
 import { AppNavbar, type AppNavItem, ScrollToTop } from '@/components/layout';
 import {
   PersonalSectionView,
@@ -24,10 +23,7 @@ import {
 } from './DashboardSectionsViews';
 
 export function DashboardPage_Main() {
-  const language = useLanguageStore(selectLanguage);
-  const { cvDocument, isLoading, error } = useCVData({
-    locale: language,
-  });
+  const { cvDocument, isLoading, error } = useCVDocument();
 
   const navItems: AppNavItem[] = useMemo(() => {
     return cvDocument && cvDocument.sections.length > 0
