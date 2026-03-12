@@ -1,8 +1,4 @@
-import axios, {
-  type AxiosInstance,
-  type AxiosRequestConfig,
-  type AxiosError,
-} from 'axios';
+import axios, { type AxiosInstance, type AxiosError } from 'axios';
 import type {
   Document,
   DocumentMetadata,
@@ -47,38 +43,14 @@ export class ApiError extends Error {
   }
 }
 
-// ─── Config ──────────────────────────────────────────────────────
-
-export interface DocumentClientConfig {
-  /** Base URL of the document API (e.g. "/api/documents") */
-  baseURL: string;
-  /** Supply your own Axios instance (auth interceptors, etc.) */
-  httpClient?: AxiosInstance;
-  /** Extra Axios config — ignored when httpClient is provided */
-  axiosConfig?: AxiosRequestConfig;
-}
-
 // ─── Client (Facade) ────────────────────────────────────────────
 
+const API_DOCS_PATH = '/api/docs';
 export class DocumentApiClient {
   private readonly http: AxiosInstance;
 
-  constructor(config: DocumentClientConfig) {
-    this.http =
-      config.httpClient ??
-      axios.create({
-        baseURL: config.baseURL,
-        headers: { 'Content-Type': 'application/json' },
-        ...config.axiosConfig,
-      });
-
-    // Ensure base URL is set even on injected instances
-    if (!config.httpClient) {
-      // already set via create
-    } else if (!this.http.defaults.baseURL) {
-      this.http.defaults.baseURL = config.baseURL;
-    }
-
+  constructor(http: AxiosInstance) {
+    this.http = http;
     // Uniform error transformation (Interceptor pattern)
     this.http.interceptors.response.use(
       (res) => res,
@@ -99,18 +71,20 @@ export class DocumentApiClient {
   ): Promise<Document> {
     const params: Record<string, string> = { 'user-id': userId };
     if (languageCode) params['language-code'] = languageCode;
-    return (await this.http.get<Document>('/default', { params })).data;
+    return (
+      await this.http.get<Document>(`${API_DOCS_PATH}/default`, { params })
+    ).data;
   }
 
   // ── Metadata Queries ───────────────────────────────────────────
 
   async getAllDocumentsMetadata(): Promise<DocumentMetadata[]> {
-    return (await this.http.get<DocumentMetadata[]>('/')).data;
+    return (await this.http.get<DocumentMetadata[]>(API_DOCS_PATH)).data;
   }
 
   async getUserDocumentsMetadata(userId: string): Promise<DocumentMetadata[]> {
     return (
-      await this.http.get<DocumentMetadata[]>('/', {
+      await this.http.get<DocumentMetadata[]>(API_DOCS_PATH, {
         params: { 'user-id': userId },
       })
     ).data;
@@ -118,7 +92,7 @@ export class DocumentApiClient {
 
   async getDocumentMetadata(docId: string): Promise<DocumentMetadata> {
     return (
-      await this.http.get<DocumentMetadata>('/', {
+      await this.http.get<DocumentMetadata>(API_DOCS_PATH, {
         params: { 'doc-id': docId },
       })
     ).data;
@@ -128,7 +102,7 @@ export class DocumentApiClient {
 
   async getDocument(docId: string): Promise<Document> {
     return (
-      await this.http.get<Document>('/doc', {
+      await this.http.get<Document>(`${API_DOCS_PATH}/doc`, {
         params: { 'doc-id': docId },
       })
     ).data;
@@ -136,7 +110,7 @@ export class DocumentApiClient {
 
   async getUserDocuments(userId: string): Promise<Document[]> {
     return (
-      await this.http.get<Document[]>('/doc', {
+      await this.http.get<Document[]>(`${API_DOCS_PATH}/doc`, {
         params: { 'user-id': userId },
       })
     ).data;
@@ -145,7 +119,8 @@ export class DocumentApiClient {
   // ── Mutations ──────────────────────────────────────────────────
 
   async createDocument(request: DocumentApiRequest): Promise<DocumentResponse> {
-    return (await this.http.post<DocumentResponse>('/', request)).data;
+    return (await this.http.post<DocumentResponse>(API_DOCS_PATH, request))
+      .data;
   }
 
   async updateDocumentContent(
@@ -153,7 +128,7 @@ export class DocumentApiClient {
     content: ContentPayload,
   ): Promise<DocumentResponse> {
     return (
-      await this.http.put<DocumentResponse>('/', content, {
+      await this.http.put<DocumentResponse>(API_DOCS_PATH, content, {
         params: { 'doc-id': docId },
       })
     ).data;
@@ -161,7 +136,7 @@ export class DocumentApiClient {
 
   async deleteDocument(docId: string): Promise<DocumentResponse> {
     return (
-      await this.http.delete<DocumentResponse>('/', {
+      await this.http.delete<DocumentResponse>(API_DOCS_PATH, {
         params: { 'doc-id': docId },
       })
     ).data;
@@ -170,12 +145,12 @@ export class DocumentApiClient {
   // ── User Management (Admin) ────────────────────────────────────
 
   async getAllUsers(): Promise<string[]> {
-    return (await this.http.get<string[]>('/users')).data;
+    return (await this.http.get<string[]>(`${API_DOCS_PATH}/users`)).data;
   }
 
   async deleteUser(userId: string): Promise<DocumentResponse[]> {
     return (
-      await this.http.delete<DocumentResponse[]>('/users', {
+      await this.http.delete<DocumentResponse[]>(`${API_DOCS_PATH}/users`, {
         params: { 'user-id': userId },
       })
     ).data;
@@ -185,37 +160,48 @@ export class DocumentApiClient {
 
   async batchDeleteDocuments(ids: string[]): Promise<DocumentResponse[]> {
     return (
-      await this.http.delete<DocumentResponse[]>('/batch-documents', {
-        data: { ids },
-      })
+      await this.http.delete<DocumentResponse[]>(
+        `${API_DOCS_PATH}/batch-documents`,
+        {
+          data: { ids },
+        },
+      )
     ).data;
   }
 
   async batchDeleteUsers(ids: string[]): Promise<DocumentResponse[]> {
     return (
-      await this.http.delete<DocumentResponse[]>('/batch-users', {
-        data: { ids },
-      })
+      await this.http.delete<DocumentResponse[]>(
+        `${API_DOCS_PATH}/batch-users`,
+        {
+          data: { ids },
+        },
+      )
     ).data;
   }
 
   async resetStore(): Promise<DocumentStoreResetResponse> {
-    return (await this.http.delete<DocumentStoreResetResponse>('/reset-store'))
-      .data;
+    return (
+      await this.http.delete<DocumentStoreResetResponse>(
+        `${API_DOCS_PATH}/reset-store`,
+      )
+    ).data;
   }
 }
 
 // ─── Factory ─────────────────────────────────────────────────────
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; // || 'http://localhost:8787';
-const API_DOCS_PATH = `${API_BASE_URL}/api/docs`;
+console.log(`API_BASE_URL is ${API_BASE_URL}`);
 
-if (!API_BASE_URL) {
-  console.log('Api base Url is not valid', API_BASE_URL);
-}
-
-export const createDocumentApiClient = (
-  config: DocumentClientConfig = {
-    baseURL: API_DOCS_PATH,
-  },
-): DocumentApiClient => new DocumentApiClient(config);
+export const createDocumentApiClient = (): DocumentApiClient =>
+  new DocumentApiClient(
+    axios.create({
+      baseURL: API_BASE_URL,
+      timeout: 30000, // 30 seconds
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }),
+  );

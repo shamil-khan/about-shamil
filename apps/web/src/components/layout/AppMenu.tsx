@@ -68,7 +68,7 @@ export function AppMenu({ className }: AppMenuProps) {
             className,
           )}>
           <Avatar className='h-8 w-8'>
-            <AvatarImage src='/logo.png' alt='SK' />
+            <AvatarImage src='/photo.png' alt='SK' />
             <AvatarFallback className='text-sm font-bold app-theme-avatar-fallback app-transition'>
               SK
             </AvatarFallback>
