@@ -79,12 +79,14 @@ export class DocumentApiClient {
   // ── Metadata Queries ───────────────────────────────────────────
 
   async getAllDocumentsMetadata(): Promise<DocumentMetadata[]> {
-    return (await this.http.get<DocumentMetadata[]>(API_DOCS_PATH)).data;
+    return (
+      await this.http.get<DocumentMetadata[]>(`${API_DOCS_PATH}/metadata`)
+    ).data;
   }
 
   async getUserDocumentsMetadata(userId: string): Promise<DocumentMetadata[]> {
     return (
-      await this.http.get<DocumentMetadata[]>(API_DOCS_PATH, {
+      await this.http.get<DocumentMetadata[]>(`${API_DOCS_PATH}/metadata`, {
         params: { 'user-id': userId },
       })
     ).data;
@@ -92,7 +94,7 @@ export class DocumentApiClient {
 
   async getDocumentMetadata(docId: string): Promise<DocumentMetadata> {
     return (
-      await this.http.get<DocumentMetadata>(API_DOCS_PATH, {
+      await this.http.get<DocumentMetadata>(`${API_DOCS_PATH}/metadata`, {
         params: { 'doc-id': docId },
       })
     ).data;
@@ -102,7 +104,7 @@ export class DocumentApiClient {
 
   async getDocument(docId: string): Promise<Document> {
     return (
-      await this.http.get<Document>(`${API_DOCS_PATH}/doc`, {
+      await this.http.get<Document>(API_DOCS_PATH, {
         params: { 'doc-id': docId },
       })
     ).data;
@@ -110,7 +112,7 @@ export class DocumentApiClient {
 
   async getUserDocuments(userId: string): Promise<Document[]> {
     return (
-      await this.http.get<Document[]>(`${API_DOCS_PATH}/doc`, {
+      await this.http.get<Document[]>(API_DOCS_PATH, {
         params: { 'user-id': userId },
       })
     ).data;

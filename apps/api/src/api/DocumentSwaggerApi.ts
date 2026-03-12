@@ -22,10 +22,10 @@ export class DocumentSwaggerApi {
     return {
       openapi: '3.0.0',
       info: {
-        title: 'Document Management API',
+        title: 'CV Management API',
         version: '1.0.0',
         description:
-          'API for managing user documents stored in Redis. ' +
+          'API for managing user CV documents stored in Redis. ' +
           'All documents require userId, profileName, and languageCode as identity fields. ' +
           'Supports inline, chunked, and external content storage strategies. ' +
           'Role-based access: USER_ADMIN for own resources, SYSTEM_ADMIN for all.',
@@ -38,7 +38,7 @@ export class DocumentSwaggerApi {
       ],
       tags: [
         { name: 'Default', description: 'Default document lookup (public)' },
-        { name: 'Metadata', description: 'Document metadata CRUD' },
+        { name: 'Metadata', description: 'Document metadata' },
         { name: 'Documents', description: 'Full document CRUD with content' },
         {
           name: 'Users',
@@ -370,9 +370,9 @@ export class DocumentSwaggerApi {
         },
       },
 
-      // ── Paths ────────────────────────────────────────────────────
+      // ── Paths ─────────────────────────────────────────────────────────
       paths: {
-        // ── GET /default ────────────────────────────────────────────
+        // ── GET /default ────────────────────────────────────────────────
         '/default': {
           get: {
             tags: ['Default'],
@@ -400,8 +400,8 @@ export class DocumentSwaggerApi {
           },
         },
 
-        // ── / (metadata CRUD) ───────────────────────────────────────
-        '/': {
+        // ── GET /metadata ───────────────────────────────────────────────
+        '/metadata': {
           get: {
             tags: ['Metadata'],
             summary: 'Query document metadata',
@@ -449,88 +449,10 @@ export class DocumentSwaggerApi {
               404: { $ref: '#/components/responses/NotFound' },
             },
           },
-
-          post: {
-            tags: ['Metadata'],
-            summary: 'Create a new document',
-            description:
-              'Creates a document under the authenticated user with the specified profile and language.',
-            operationId: 'createDocument',
-            requestBody: {
-              required: true,
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/DocumentApiRequest' },
-                },
-              },
-            },
-            responses: {
-              201: {
-                description: 'Document created',
-                content: {
-                  'application/json': {
-                    schema: { $ref: '#/components/schemas/DocumentResponse' },
-                  },
-                },
-              },
-              400: { $ref: '#/components/responses/BadRequest' },
-              403: { $ref: '#/components/responses/Forbidden' },
-            },
-          },
-
-          put: {
-            tags: ['Metadata'],
-            summary: 'Update document content',
-            description:
-              'Replaces the content of an existing document. Requires ownership or SYSTEM_ADMIN.',
-            operationId: 'updateDocumentContent',
-            parameters: [{ $ref: '#/components/parameters/DocId' }],
-            requestBody: {
-              required: true,
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/ContentPayload' },
-                },
-              },
-            },
-            responses: {
-              200: {
-                description: 'Content updated',
-                content: {
-                  'application/json': {
-                    schema: { $ref: '#/components/schemas/DocumentResponse' },
-                  },
-                },
-              },
-              403: { $ref: '#/components/responses/Forbidden' },
-              404: { $ref: '#/components/responses/NotFound' },
-            },
-          },
-
-          delete: {
-            tags: ['Metadata'],
-            summary: 'Delete a document',
-            description:
-              'Deletes a single document by ID. Requires ownership or SYSTEM_ADMIN.',
-            operationId: 'deleteDocument',
-            parameters: [{ $ref: '#/components/parameters/DocId' }],
-            responses: {
-              200: {
-                description: 'Document deleted',
-                content: {
-                  'application/json': {
-                    schema: { $ref: '#/components/schemas/DocumentResponse' },
-                  },
-                },
-              },
-              403: { $ref: '#/components/responses/Forbidden' },
-              404: { $ref: '#/components/responses/NotFound' },
-            },
-          },
         },
 
-        // ── /doc (full documents with content) ──────────────────────
-        '/doc': {
+        // ── GET,POST,PUT,DELETE / ────── CV Document with content) ──────
+        '/': {
           get: {
             tags: ['Documents'],
             summary: 'Get full documents with content',
@@ -575,9 +497,86 @@ export class DocumentSwaggerApi {
               404: { $ref: '#/components/responses/NotFound' },
             },
           },
+          post: {
+            tags: ['Documents'],
+            summary: 'Create a new document',
+            description:
+              'Creates a document under the authenticated user with the specified profile and language.',
+            operationId: 'createDocument',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/DocumentApiRequest' },
+                },
+              },
+            },
+            responses: {
+              201: {
+                description: 'Document created',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/DocumentResponse' },
+                  },
+                },
+              },
+              400: { $ref: '#/components/responses/BadRequest' },
+              403: { $ref: '#/components/responses/Forbidden' },
+            },
+          },
+
+          put: {
+            tags: ['Documents'],
+            summary: 'Update document content',
+            description:
+              'Replaces the content of an existing document. Requires ownership or SYSTEM_ADMIN.',
+            operationId: 'updateDocumentContent',
+            parameters: [{ $ref: '#/components/parameters/DocId' }],
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/ContentPayload' },
+                },
+              },
+            },
+            responses: {
+              200: {
+                description: 'Content updated',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/DocumentResponse' },
+                  },
+                },
+              },
+              403: { $ref: '#/components/responses/Forbidden' },
+              404: { $ref: '#/components/responses/NotFound' },
+            },
+          },
+
+          delete: {
+            tags: ['Documents'],
+            summary: 'Delete a document',
+            description:
+              'Deletes a single document by ID. Requires ownership or SYSTEM_ADMIN.',
+            operationId: 'deleteDocument',
+            parameters: [{ $ref: '#/components/parameters/DocId' }],
+            responses: {
+              200: {
+                description: 'Document deleted',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/DocumentResponse' },
+                  },
+                },
+              },
+              403: { $ref: '#/components/responses/Forbidden' },
+              404: { $ref: '#/components/responses/NotFound' },
+            },
+          },
         },
 
-        // ── /users ──────────────────────────────────────────────────
+        // ── GET,DELETE /users ───────────────────────────────────────────
         '/users': {
           get: {
             tags: ['Users'],
@@ -626,7 +625,7 @@ export class DocumentSwaggerApi {
           },
         },
 
-        // ── /batch-documents ────────────────────────────────────────
+        // ── /batch-documents ────────────────────────────────────────────
         '/batch-documents': {
           delete: {
             tags: ['Batch'],
@@ -660,7 +659,7 @@ export class DocumentSwaggerApi {
           },
         },
 
-        // ── /batch-users ────────────────────────────────────────────
+        // ── /batch-users ────────────────────────────────────────────────
         '/batch-users': {
           delete: {
             tags: ['Batch'],
@@ -694,7 +693,7 @@ export class DocumentSwaggerApi {
           },
         },
 
-        // ── /reset-store ────────────────────────────────────────────
+        // ── /reset-store ────────────────────────────────────────────────
         '/reset-store': {
           delete: {
             tags: ['System'],

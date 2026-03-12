@@ -185,26 +185,19 @@ export class DocumentApi {
       const auth = Authorization.auth(c).loggedIn();
       const query = c.req.query();
 
-      if (Object.keys(query).length === 0 && auth.allowSystemAdmin()) {
-        const metadocs: DocumentMetadata[] =
-          await this.getRepository(c).allDocuments();
-        return c.json(metadocs);
-      }
-
       const userId = query['user-id'];
       if (userId && auth.allowAccess({ userId })) {
-        const metaDoc: DocumentMetadata[] = await this.getRepository(
-          c,
-        ).getUserDocumentsMetadata(query['user-id']);
-        return c.json(metaDoc);
+        const docs: Document[] =
+          await this.getRepository(c).getUserDocuments(userId);
+        return c.json(docs);
       }
 
       const docId = query['doc-id'];
       if (docId) {
-        const metaDoc: DocumentMetadata | null =
-          await this.getRepository(c).getDocumentMetadata(docId);
-        auth.allowAccess(metaDoc);
-        return c.json(metaDoc);
+        const doc: Document | null =
+          await this.getRepository(c).getDocument(docId);
+        auth.allowAccess(doc);
+        return c.json(doc);
       }
 
       throw new HTTPException(404, { message: 'Resource not found' });
@@ -269,23 +262,30 @@ export class DocumentApi {
       return c.json(response);
     });
 
-    this.router.get('/doc', async (c) => {
+    this.router.get('/metadata', async (c) => {
       const auth = Authorization.auth(c).loggedIn();
       const query = c.req.query();
 
+      if (Object.keys(query).length === 0 && auth.allowSystemAdmin()) {
+        const metadocs: DocumentMetadata[] =
+          await this.getRepository(c).allDocuments();
+        return c.json(metadocs);
+      }
+
       const userId = query['user-id'];
       if (userId && auth.allowAccess({ userId })) {
-        const docs: Document[] =
-          await this.getRepository(c).getUserDocuments(userId);
-        return c.json(docs);
+        const metaDoc: DocumentMetadata[] = await this.getRepository(
+          c,
+        ).getUserDocumentsMetadata(query['user-id']);
+        return c.json(metaDoc);
       }
 
       const docId = query['doc-id'];
       if (docId) {
-        const doc: Document | null =
-          await this.getRepository(c).getDocument(docId);
-        auth.allowAccess(doc);
-        return c.json(doc);
+        const metaDoc: DocumentMetadata | null =
+          await this.getRepository(c).getDocumentMetadata(docId);
+        auth.allowAccess(metaDoc);
+        return c.json(metaDoc);
       }
 
       throw new HTTPException(404, { message: 'Resource not found' });
