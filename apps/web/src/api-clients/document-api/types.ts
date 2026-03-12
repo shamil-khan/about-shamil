@@ -1,3 +1,4 @@
+import { type LanguageCode } from '@/config';
 // ─── Content Types ───────────────────────────────────────────────
 
 export type MimeType =
@@ -58,7 +59,7 @@ export const isExternalContent = (c: DocumentContent): c is ExternalContent =>
 export interface Document {
   readonly id: string;
   readonly userId: string;
-  readonly languageCode: string;
+  readonly languageCode: LanguageCode;
   readonly profileName: string;
   readonly content: DocumentContent;
   readonly createdOn: string;
@@ -76,7 +77,7 @@ export interface DocumentMetadata {
   readonly id: string;
   readonly userId: string;
   readonly profileName: string;
-  readonly languageCode: string;
+  readonly languageCode: LanguageCode;
   readonly contentInfo: ContentMetadata;
 }
 
@@ -91,7 +92,7 @@ export interface ContentPayload {
 
 export interface DocumentApiRequest {
   readonly profileName: string;
-  readonly languageCode: string;
+  readonly languageCode: LanguageCode;
   readonly content: ContentPayload;
 }
 

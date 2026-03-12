@@ -1,10 +1,3 @@
-// ============================================================================
-// System Admin Page (Shadcn UI)
-// ============================================================================
-// Administrative interface using shadcn/ui components for consistency,
-// accessibility, and maintainability.
-// ============================================================================
-
 import { useState, useCallback, useEffect, useMemo, type JSX } from 'react';
 import {
   Trash2,
@@ -38,11 +31,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import type { DocumentMetadata } from '@/api-wrappers/DocumentApi/document';
 import {
-  documentApiClientSafe,
-  isDocumentApiError,
-} from '@/api-wrappers/DocumentApi/DocumentApiClient';
+  createDocumentApiClient,
+  ApiError,
+  type DocumentMetadata,
+} from '@/api-clients';
 
 // ============================================================================
 // Types
@@ -216,6 +209,7 @@ export const SystemAdminPage = (): JSX.Element => {
   const [deleteUsersDialogOpen, setDeleteUsersDialogOpen] = useState(false);
   const [resetStoreDialogOpen, setResetStoreDialogOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const documentApi = createDocumentApiClient();
 
   // ==========================================================================
   // Data Loading
@@ -223,14 +217,12 @@ export const SystemAdminPage = (): JSX.Element => {
 
   const loadData = useCallback(async (): Promise<void> => {
     setIsLoading(true);
-    const result = await documentApiClientSafe.getAllDocuments();
-
-    if (result.success) {
-      const docs = result.data;
+    try {
+      const result = await documentApi.getAllDocumentsMetadata();
 
       // Group documents by user
       const userMap = new Map<string, DocumentMetadata[]>();
-      docs.forEach((doc) => {
+      result.forEach((doc) => {
         const userDocs = userMap.get(doc.userId) ?? [];
         userDocs.push(doc);
         userMap.set(doc.userId, userDocs);
@@ -247,12 +239,12 @@ export const SystemAdminPage = (): JSX.Element => {
       );
 
       setUsers(userNodes);
-    } else {
-      toast.error(`Failed to load data: ${result.error}`);
+    } catch (err) {
+      toast.error(`Failed to load data: ${(err as ApiError).message}`);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
-  }, []);
+  }, [documentApi]);
 
   useEffect(() => {
     const nextLoad = () => {
@@ -333,23 +325,17 @@ export const SystemAdminPage = (): JSX.Element => {
     setIsProcessing(true);
     try {
       const result =
-        await documentApiClientSafe.deleteDocuments(selectedDocumentIds);
-      if (result.success) {
-        toast.success(`Successfully deleted ${result.data.length} document(s)`);
-        setSelectedDocuments({});
-        await loadData();
-      } else {
-        toast.error(`Failed to delete documents: ${result.error}`);
-      }
+        await documentApi.batchDeleteDocuments(selectedDocumentIds);
+      toast.success(`Successfully deleted ${result.length} document(s)`);
+      setSelectedDocuments({});
+      await loadData();
     } catch (error) {
-      const message = isDocumentApiError(error)
-        ? error.message
-        : 'Unknown error';
+      const message = (error as ApiError).message ?? 'Unknown error';
       toast.error(`Error deleting documents: ${message}`);
     }
     setIsProcessing(false);
     setDeleteDocsDialogOpen(false);
-  }, [selectedDocumentIds, loadData]);
+  }, [selectedDocumentIds, loadData, documentApi]);
 
   const handleDeleteUsers = useCallback(async (): Promise<void> => {
     if (selectedUserIds.length === 0) {
@@ -362,24 +348,18 @@ export const SystemAdminPage = (): JSX.Element => {
   const confirmDeleteUsers = useCallback(async (): Promise<void> => {
     setIsProcessing(true);
     try {
-      const result = await documentApiClientSafe.deleteUsers(selectedUserIds);
-      if (result.success) {
-        toast.success(`Successfully deleted ${selectedUserIds.length} user(s)`);
-        setSelectedUsers({});
-        setSelectedDocuments({});
-        await loadData();
-      } else {
-        toast.error(`Failed to delete users: ${result.error}`);
-      }
+      const result = await documentApi.batchDeleteDocuments(selectedUserIds);
+      toast.success(`Successfully deleted ${result.length} user(s)`);
+      setSelectedUsers({});
+      setSelectedDocuments({});
+      await loadData();
     } catch (error) {
-      const message = isDocumentApiError(error)
-        ? error.message
-        : 'Unknown error';
+      const message = (error as ApiError).message ?? 'Unknown error';
       toast.error(`Error deleting users: ${message}`);
     }
     setIsProcessing(false);
     setDeleteUsersDialogOpen(false);
-  }, [selectedUserIds, loadData]);
+  }, [selectedUserIds, loadData, documentApi]);
 
   const handleResetStore = useCallback(async (): Promise<void> => {
     setResetStoreDialogOpen(true);
@@ -388,24 +368,18 @@ export const SystemAdminPage = (): JSX.Element => {
   const confirmResetStore = useCallback(async (): Promise<void> => {
     setIsProcessing(true);
     try {
-      const result = await documentApiClientSafe.resetStore();
-      if (result.success) {
-        toast.success('Store reset successfully');
-        setSelectedUsers({});
-        setSelectedDocuments({});
-        await loadData();
-      } else {
-        toast.error(`Failed to reset store: ${result.error}`);
-      }
+      const result = await documentApi.resetStore();
+      toast.success(`Store reset successfully ${result}`);
+      setSelectedUsers({});
+      setSelectedDocuments({});
+      await loadData();
     } catch (error) {
-      const message = isDocumentApiError(error)
-        ? error.message
-        : 'Unknown error';
+      const message = (error as ApiError).message ?? 'Unknown error';
       toast.error(`Error resetting store: ${message}`);
     }
     setIsProcessing(false);
     setResetStoreDialogOpen(false);
-  }, [loadData]);
+  }, [loadData, documentApi]);
 
   // ==========================================================================
   // Render

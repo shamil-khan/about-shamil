@@ -1,10 +1,3 @@
-// ============================================================================
-// User Admin Page (Shadcn UI)
-// ============================================================================
-// User-facing document management interface with file upload, inline editing,
-// and document CRUD operations. Uses current user ID for all operations.
-// ============================================================================
-
 import {
   useState,
   useCallback,
@@ -56,22 +49,19 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import { type LanguageCode, LANGUAGES, isValidLanguageCode } from '@/config';
 import type {
   Document,
   DocumentMetadata,
   DocumentApiRequest,
   ContentPayload,
-  LanguageCode,
-} from '@/api-wrappers/DocumentApi/document';
-import {
-  LANGUAGE_CODE_LABELS,
-  SUPPORTED_LANGUAGE_CODES,
-  isValidLanguageCode,
-} from '@/api-wrappers/DocumentApi/document';
-import {
-  documentApiClientSafe,
-  isDocumentApiError,
-} from '@/api-wrappers/DocumentApi/DocumentApiClient';
+} from '@/api-clients';
+import { createDocumentApiClient, ApiError } from '@/api-clients';
+
+// import {
+//   documentApiClientSafe,
+//   isDocumentApiError,
+// } from '@/api-wrappers/DocumentApi/DocumentApiClient';
 
 // ============================================================================
 // Constants
@@ -193,7 +183,7 @@ export const UserAdminPage = (): JSX.Element => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteSingleId, setDeleteSingleId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-
+  const documentApi = createDocumentApiClient();
   // State: Form
   const [editingDocument, setEditingDocument] = useState<Document | null>(null);
   const [viewingDocument, setViewingDocument] = useState<Document | null>(null);
@@ -214,16 +204,10 @@ export const UserAdminPage = (): JSX.Element => {
 
   const loadDocuments = useCallback(async (): Promise<void> => {
     setIsLoading(true);
-    const result = await documentApiClientSafe.getAllDocuments();
-
-    if (result.success) {
-      setDocuments(result.data);
-    } else {
-      toast.error(`Failed to load documents: ${result.error}`);
-    }
-
+    const result = await documentApi.getAllDocumentsMetadata();
+    setDocuments(result);
     setIsLoading(false);
-  }, []);
+  }, [documentApi]);
 
   useEffect(() => {
     const load = () => {
@@ -328,25 +312,23 @@ export const UserAdminPage = (): JSX.Element => {
         content: contentPayload,
       };
 
-      const result = await documentApiClientSafe.addDocument(request);
+      const result = await documentApi.createDocument(request);
 
-      if (result.success) {
+      if (result.status) {
         toast.success('Document created successfully');
         setAddDialogOpen(false);
         resetForm();
         void loadDocuments();
       } else {
-        toast.error(`Failed to create document: ${result.error}`);
+        toast.error(`Failed to create document: ${result.message}`);
       }
     } catch (error) {
-      const message = isDocumentApiError(error)
-        ? error.message
-        : 'Unknown error';
+      const message = (error as ApiError).message ?? 'Unknown error';
       toast.error(`Error creating document: ${message}`);
     }
 
     setIsProcessing(false);
-  }, [formState, resetForm, loadDocuments]);
+  }, [formState, resetForm, loadDocuments, documentApi]);
 
   const handleUpdateDocument = useCallback(async (): Promise<void> => {
     if (!editingDocument) return;
@@ -354,7 +336,7 @@ export const UserAdminPage = (): JSX.Element => {
     setIsProcessing(true);
 
     try {
-      let contentPayload: unknown;
+      let contentPayload: ContentPayload;
 
       if (formState.contentType === 'file' && formState.file) {
         const base64Data = await fileToBase64(formState.file);
@@ -382,67 +364,62 @@ export const UserAdminPage = (): JSX.Element => {
         return;
       }
 
-      const result = await documentApiClientSafe.updateContent(
+      const result = await documentApi.updateDocumentContent(
         editingDocument.id,
-        {
-          content: contentPayload,
-        },
+        contentPayload,
       );
 
-      if (result.success) {
+      if (result.status) {
         toast.success('Document updated successfully');
         setEditDialogOpen(false);
         resetForm();
         void loadDocuments();
       } else {
-        toast.error(`Failed to update document: ${result.error}`);
+        toast.error(`Failed to update document: ${result.message}`);
       }
     } catch (error) {
-      const message = isDocumentApiError(error)
-        ? error.message
-        : 'Unknown error';
+      const message = (error as ApiError).message ?? 'Unknown error';
       toast.error(`Error updating document: ${message}`);
     }
 
     setIsProcessing(false);
-  }, [editingDocument, formState, resetForm, loadDocuments]);
+  }, [editingDocument, formState, resetForm, loadDocuments, documentApi]);
 
   const openEditDialog = useCallback(
     async (documentId: string): Promise<void> => {
-      const result = await documentApiClientSafe.getDocument(documentId);
-      if (!result.success) {
-        toast.error(`Failed to load document: ${result.error}`);
+      const result = await documentApi.getDocument(documentId);
+      if (!result) {
+        toast.error(`Failed to load document: ${documentId}`);
         return;
       }
 
-      const doc = result.data;
-      setEditingDocument(doc);
+      setEditingDocument(result);
 
       // Determine content type and set form state
-      if (doc.content.type === 'inline') {
+      if (result.content.type === 'inline') {
         // Decode base64 content
         try {
-          const decoded = atob(doc.content.data);
+          const decoded = atob(result.content.data);
           setFormState({
-            profileName: doc.profileName,
-            languageCode: doc.languageCode,
+            profileName: result.profileName,
+            languageCode: result.languageCode,
             contentType: 'inline',
             file: null,
             inlineContent: decoded,
           });
         } catch {
           setFormState({
-            profileName: doc.profileName,
-            languageCode: doc.languageCode,
+            profileName: result.profileName,
+            languageCode: result.languageCode,
             contentType: 'inline',
             file: null,
-            inlineContent: doc.content.data,
+            inlineContent: result.content.data,
           });
         }
       } else {
         setFormState({
-          profileName: doc.profileName,
-          languageCode: doc.languageCode,
+          profileName: result.profileName,
+          languageCode: result.languageCode,
           contentType: 'file',
           file: null,
           inlineContent: '',
@@ -451,20 +428,20 @@ export const UserAdminPage = (): JSX.Element => {
 
       setEditDialogOpen(true);
     },
-    [],
+    [documentApi],
   );
 
   const openViewDialog = useCallback(
     async (documentId: string): Promise<void> => {
-      const result = await documentApiClientSafe.getDocument(documentId);
-      if (!result.success) {
-        toast.error(`Failed to load document: ${result.error}`);
+      const result = await documentApi.getDocument(documentId);
+      if (!result) {
+        toast.error(`Failed to load document: ${documentId}`);
         return;
       }
-      setViewingDocument(result.data);
+      setViewingDocument(result);
       setViewDialogOpen(true);
     },
-    [],
+    [documentApi],
   );
 
   const handleDeleteDocument = useCallback((documentId: string): void => {
@@ -477,8 +454,8 @@ export const UserAdminPage = (): JSX.Element => {
 
     setIsProcessing(true);
     try {
-      const result = await documentApiClientSafe.deleteDocument(deleteSingleId);
-      if (result.success) {
+      const result = await documentApi.deleteDocument(deleteSingleId);
+      if (result.status) {
         toast.success('Document deleted successfully');
         setSelectedDocuments((prev) => {
           const next: Record<string, boolean> = { ...prev };
@@ -487,18 +464,16 @@ export const UserAdminPage = (): JSX.Element => {
         });
         void loadDocuments();
       } else {
-        toast.error(`Failed to delete document: ${result.error}`);
+        toast.error(`Failed to delete document: ${result.message}`);
       }
     } catch (error) {
-      const message = isDocumentApiError(error)
-        ? error.message
-        : 'Unknown error';
+      const message = (error as ApiError).message ?? 'Unknown error';
       toast.error(`Error deleting document: ${message}`);
     }
     setIsProcessing(false);
     setDeleteDialogOpen(false);
     setDeleteSingleId(null);
-  }, [deleteSingleId, loadDocuments]);
+  }, [deleteSingleId, loadDocuments, documentApi]);
 
   const handleDeleteDocuments = useCallback(async (): Promise<void> => {
     if (selectedDocumentIds.length === 0) {
@@ -513,23 +488,21 @@ export const UserAdminPage = (): JSX.Element => {
     setIsProcessing(true);
     try {
       const result =
-        await documentApiClientSafe.deleteDocuments(selectedDocumentIds);
-      if (result.success) {
-        toast.success(`Deleted ${result.data.length} document(s)`);
+        await documentApi.batchDeleteDocuments(selectedDocumentIds);
+      if (result) {
+        toast.success(`Deleted ${result.length} document(s)`);
         setSelectedDocuments({});
         void loadDocuments();
       } else {
-        toast.error(`Failed to delete documents: ${result.error}`);
+        toast.error(`Failed to delete documents`);
       }
     } catch (error) {
-      const message = isDocumentApiError(error)
-        ? error.message
-        : 'Unknown error';
+      const message = (error as ApiError).message ?? 'Unknown error';
       toast.error(`Error deleting documents: ${message}`);
     }
     setIsProcessing(false);
     setDeleteDialogOpen(false);
-  }, [selectedDocumentIds, loadDocuments]);
+  }, [selectedDocumentIds, loadDocuments, documentApi]);
 
   // ==========================================================================
   // Render Helpers
@@ -568,9 +541,9 @@ export const UserAdminPage = (): JSX.Element => {
                 <SelectValue placeholder='Select language' />
               </SelectTrigger>
               <SelectContent>
-                {SUPPORTED_LANGUAGE_CODES.map((code) => (
-                  <SelectItem key={code} value={code}>
-                    {LANGUAGE_CODE_LABELS[code]}
+                {LANGUAGES.map((entry) => (
+                  <SelectItem key={entry.code} value={entry.code}>
+                    {entry.code}
                   </SelectItem>
                 ))}
               </SelectContent>

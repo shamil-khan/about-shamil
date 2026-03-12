@@ -38,6 +38,10 @@ export function getLanguageByCode(code: string): Language | undefined {
   return LANGUAGES.find((lang) => lang.code === code);
 }
 
+export const isValidLanguageCode = (value: unknown): value is LanguageCode =>
+  typeof value === 'string' &&
+  LANGUAGES.find((lang) => lang.code === value) !== undefined;
+
 export function isRTLLanguage(code: string): boolean {
   const lang = getLanguageByCode(code);
   return lang?.dir === 'rtl';

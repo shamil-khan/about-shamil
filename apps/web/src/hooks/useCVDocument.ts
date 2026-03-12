@@ -4,13 +4,6 @@ import { createCVProcessor, type CVDocument } from 'cv-processor';
 import { selectLanguage, useLanguageStore } from '@/store';
 import { createDocumentApiClient, ApiError } from '@/api-clients';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; // || 'http://localhost:8787';
-const API_DOCS_PATH = `${API_BASE_URL}/api/docs`;
-
-if (!API_BASE_URL) {
-  console.log('Api base Url is not valid', API_BASE_URL);
-}
-
 const userId = 'test-user';
 const queryClient = new QueryClient();
 
@@ -46,9 +39,7 @@ export function useCVDocument(): UseCVDocumentReturn {
       }
 
       try {
-        const documentApiClient = createDocumentApiClient({
-          baseURL: API_DOCS_PATH,
-        });
+        const documentApiClient = createDocumentApiClient();
 
         const data = await queryClient.fetchQuery({
           queryKey: ['cvDocument', userId, language],

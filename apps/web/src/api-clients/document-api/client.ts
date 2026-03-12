@@ -207,6 +207,15 @@ export class DocumentApiClient {
 
 // ─── Factory ─────────────────────────────────────────────────────
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; // || 'http://localhost:8787';
+const API_DOCS_PATH = `${API_BASE_URL}/api/docs`;
+
+if (!API_BASE_URL) {
+  console.log('Api base Url is not valid', API_BASE_URL);
+}
+
 export const createDocumentApiClient = (
-  config: DocumentClientConfig,
+  config: DocumentClientConfig = {
+    baseURL: API_DOCS_PATH,
+  },
 ): DocumentApiClient => new DocumentApiClient(config);
