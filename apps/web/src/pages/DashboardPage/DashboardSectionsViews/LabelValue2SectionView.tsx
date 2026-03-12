@@ -16,7 +16,7 @@ export function LabelValue2SectionView({ section }: LabelValue2SectionProps) {
       <div className='container mx-auto px-4'>
         <div className='max-w-4xl mx-auto'>
           <SectionTitle>{section.title}</SectionTitle>
-          <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
+          <div className='grid gap-4'>
             {section.labels.map((entry, index) => (
               <Card
                 key={index}

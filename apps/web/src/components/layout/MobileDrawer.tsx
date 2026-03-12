@@ -11,6 +11,7 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
@@ -88,67 +89,72 @@ export function MobileDrawer({
         </SheetHeader>
 
         <Separator className='my-4' />
+        <div className='flex-1 overflow-y-auto py-4'>
+          <nav className='flex flex-col gap-1'>
+            <SectionLabel>Navigation</SectionLabel>
+            {navItems.map((item) => (
+              <NavButton
+                key={item.id}
+                isActive={activeSection === item.id}
+                onClick={() => handleNavClick(item.id)}>
+                {item.label}
+              </NavButton>
+            ))}
+          </nav>
 
-        <nav className='flex flex-col gap-1'>
-          <SectionLabel>Navigation</SectionLabel>
-          {navItems.map((item) => (
-            <NavButton
-              key={item.id}
-              isActive={activeSection === item.id}
-              onClick={() => handleNavClick(item.id)}>
-              {item.label}
-            </NavButton>
-          ))}
-        </nav>
+          <Separator className='my-4' />
 
-        <Separator className='my-4' />
+          <div className='flex flex-col gap-1'>
+            <SectionLabel>Actions</SectionLabel>
+            <Button
+              variant='ghost'
+              className='justify-start px-3 py-3 h-auto font-medium app-theme-nav-inactive app-theme-nav-button'
+              asChild
+              onClick={onClose}>
+              <Link to='/print'>
+                <FileText className='h-4 w-4 me-3' />
+                Printable View
+              </Link>
+            </Button>
+          </div>
 
-        <div className='flex flex-col gap-1'>
-          <SectionLabel>Actions</SectionLabel>
-          <Button
-            variant='ghost'
-            className='justify-start px-3 py-3 h-auto font-medium app-theme-nav-inactive app-theme-nav-button'
-            asChild
-            onClick={onClose}>
-            <Link to='/print'>
-              <FileText className='h-4 w-4 me-3' />
-              Printable View
-            </Link>
-          </Button>
-        </div>
+          <Separator className='my-4' />
 
-        <Separator className='my-4' />
+          <div className='flex flex-col gap-1'>
+            <SectionLabel>Theme</SectionLabel>
+            {themes.map((t) => {
+              const Icon = THEME_ICONS[t.icon];
+              return (
+                <OptionButton
+                  key={t.value}
+                  isSelected={theme === t.value}
+                  onClick={() => setTheme(t.value)}
+                  icon={<Icon className='h-4 w-4' />}>
+                  {t.label}
+                </OptionButton>
+              );
+            })}
+          </div>
 
-        <div className='flex flex-col gap-1'>
-          <SectionLabel>Theme</SectionLabel>
-          {themes.map((t) => {
-            const Icon = THEME_ICONS[t.icon];
-            return (
+          <Separator className='my-4' />
+
+          <div className='flex flex-col gap-1'>
+            <SectionLabel>Language</SectionLabel>
+            {languages.map((lang) => (
               <OptionButton
-                key={t.value}
-                isSelected={theme === t.value}
-                onClick={() => setTheme(t.value)}
-                icon={<Icon className='h-4 w-4' />}>
-                {t.label}
+                key={lang.code}
+                isSelected={language === lang.code}
+                onClick={() => handleLanguageChange(lang.code)}
+                icon={<Languages className='h-4 w-4' />}>
+                {lang.nativeLabel}
               </OptionButton>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
-        <Separator className='my-4' />
-
-        <div className='flex flex-col gap-1'>
-          <SectionLabel>Language</SectionLabel>
-          {languages.map((lang) => (
-            <OptionButton
-              key={lang.code}
-              isSelected={language === lang.code}
-              onClick={() => handleLanguageChange(lang.code)}
-              icon={<Languages className='h-4 w-4' />}>
-              {lang.nativeLabel}
-            </OptionButton>
-          ))}
-        </div>
+        <SheetFooter>
+          <Separator className='my-4' />
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );
