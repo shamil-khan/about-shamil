@@ -1,8 +1,15 @@
-import { QueryClient } from '@tanstack/query-core';
 import { useState, useEffect } from 'react';
-import { documentApiClientSafe } from '@/api-wrappers/DocumentApi/DocumentApiClient';
+import { QueryClient } from '@tanstack/query-core';
 import { createCVProcessor, type CVDocument } from 'cv-processor';
 import { selectLanguage, useLanguageStore } from '@/store';
+import { createDocumentApiClient, ApiError } from '@/api-clients';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; // || 'http://localhost:8787';
+const API_DOCS_PATH = `${API_BASE_URL}/api/docs`;
+
+if (!API_BASE_URL) {
+  console.log('Api base Url is not valid', API_BASE_URL);
+}
 
 const userId = 'test-user';
 const queryClient = new QueryClient();
@@ -39,22 +46,24 @@ export function useCVDocument(): UseCVDocumentReturn {
       }
 
       try {
+        const documentApiClient = createDocumentApiClient({
+          baseURL: API_DOCS_PATH,
+        });
+
         const data = await queryClient.fetchQuery({
           queryKey: ['cvDocument', userId, language],
           queryFn: async () => {
-            const response = await documentApiClientSafe.getIdentity(
+            const document = await documentApiClient.getDefaultDocument(
               userId,
               language,
             );
-            if (!response.success)
-              throw new Error(`Api response is failed. reponse: ${response}`);
-            if (response.data.content.type !== 'inline')
+            if (document.content.type !== 'inline')
               throw new Error(
-                `Content type is not supported. document: ${response.data}`,
+                `Content type is not supported. document: ${document.content.type}`,
               );
 
             return createCVProcessor().parseContent(
-              response.data.content.data,
+              document.content.data,
               'yaml',
             );
           },
@@ -66,6 +75,9 @@ export function useCVDocument(): UseCVDocumentReturn {
       } catch (err) {
         if (isMounted) {
           setState({ data: null, loading: false, error: err });
+        }
+        if (err instanceof ApiError) {
+          console.error(`[${err.status}] ${err.message}`);
         }
       }
     };

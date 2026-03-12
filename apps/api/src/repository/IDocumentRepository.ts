@@ -69,7 +69,7 @@ export interface IDocumentRepository {
    * @param languageCode - ISO language code
    * @returns The document if found, null otherwise
    */
-  getDocumentByIdentity(
+  getDefaultDocument(
     userId: string,
     profileName: string,
     languageCode: string,

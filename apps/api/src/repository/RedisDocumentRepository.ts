@@ -248,7 +248,7 @@ export class RedisDocumentRepository implements IDocumentRepository {
    * @param languageCode - ISO language code
    * @returns The document if found, null otherwise
    */
-  async getDocumentByIdentity(
+  async getDefaultDocument(
     userId: string,
     profileName: string,
     languageCode: string,
