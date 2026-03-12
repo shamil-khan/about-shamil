@@ -1,7 +1,11 @@
+import { QueryClient } from '@tanstack/query-core';
 import { useState, useEffect } from 'react';
 import { documentApiClientSafe } from '@/api-wrappers/DocumentApi/DocumentApiClient';
 import { createCVProcessor, type CVDocument } from 'cv-processor';
 import { selectLanguage, useLanguageStore } from '@/store';
+
+const userId = 'test-user';
+const queryClient = new QueryClient();
 
 interface UseCVDocumentReturn {
   cvDocument: CVDocument | null;
@@ -11,51 +15,70 @@ interface UseCVDocumentReturn {
 
 export function useCVDocument(): UseCVDocumentReturn {
   const language = useLanguageStore(selectLanguage);
-  const [cvDocument, setCVDocument] = useState<CVDocument | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [state, setState] = useState<{
+    data: CVDocument | null;
+    loading: boolean;
+    error: unknown;
+  }>({
+    data: null,
+    loading: true,
+    error: null,
+  });
 
   useEffect(() => {
+    let isMounted = true;
     const fetchData = async () => {
+      const cached = queryClient.getQueryData<CVDocument>([
+        'cvDocument',
+        userId,
+        language,
+      ]);
+
+      if (!cached) {
+        setState((prev) => ({ ...prev, loading: true }));
+      }
+
       try {
-        setIsLoading(true);
-        setError(null);
+        const data = await queryClient.fetchQuery({
+          queryKey: ['cvDocument', userId, language],
+          queryFn: async () => {
+            const response = await documentApiClientSafe.getIdentity(
+              userId,
+              language,
+            );
+            if (!response.success)
+              throw new Error(`Api response is failed. reponse: ${response}`);
+            if (response.data.content.type !== 'inline')
+              throw new Error(
+                `Content type is not supported. document: ${response.data}`,
+              );
 
-        const response = await documentApiClientSafe.getIdentity(
-          'test-user',
-          language,
-        );
-
-        if (!response.success) {
-          setError(new Error(`Api response is failed. reponse: ${response}`));
-          return;
+            return createCVProcessor().parseContent(
+              response.data.content.data,
+              'yaml',
+            );
+          },
+          staleTime: 1000 * 60 * 5, // Caching
+        });
+        if (isMounted) {
+          setState({ data, loading: false, error: null });
         }
-
-        if (response.data.content.type !== 'inline') {
-          setError(
-            new Error(
-              `Content type is not supported. document: ${response.data}`,
-            ),
-          );
-          return;
-        }
-
-        const rawContent = response.data.content.data;
-        const processor = createCVProcessor();
-        const document = processor.parseContent(rawContent, 'yaml');
-        console.log(document, document);
-        setCVDocument(document);
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error('Failed to load CV data'),
-        );
-      } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setState({ data: null, loading: false, error: err });
+        }
       }
     };
 
     fetchData();
+    return () => {
+      isMounted = false;
+    };
   }, [language]);
 
-  return { cvDocument, isLoading, error };
+  return {
+    cvDocument: state.data,
+    isLoading: state.loading,
+    error: state.error as Error,
+  };
 }
