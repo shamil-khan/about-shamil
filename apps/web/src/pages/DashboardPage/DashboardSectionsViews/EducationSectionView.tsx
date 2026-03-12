@@ -36,7 +36,7 @@ export function EducationSectionView({ section }: EducationSectionViewProps) {
                           </p>
                           <p className='text-sm app-theme-muted'>{edu.field}</p>
                         </div>
-                        <span className='flex items-center gap-1 text-sm app-theme-muted'>
+                        <span className='flex items-center gap-1 text-sm font-semibold app-theme-muted'>
                           <Calendar className='h-3 w-3' />
                           {edu.duration.from} - {edu.duration.to}
                         </span>

@@ -7,6 +7,8 @@ interface ValueSectionViewProps {
 }
 
 export function ValueSectionView({ section }: ValueSectionViewProps) {
+  const lines = section.value.split('/n');
+
   return (
     <SectionWrapper
       id={section.id}
@@ -14,9 +16,14 @@ export function ValueSectionView({ section }: ValueSectionViewProps) {
       <div className='container mx-auto px-4'>
         <div className='max-w-4xl mx-auto'>
           <SectionTitle>{section.title}</SectionTitle>
-          <p className='text-lg md:text-xl leading-relaxed app-theme-muted'>
-            {section.value}
-          </p>
+          {lines.length > 0 &&
+            lines.map((line, index) => (
+              <p
+                key={index}
+                className='text-lg md:text-xl leading-relaxed text-justify app-theme-muted'>
+                {line}
+              </p>
+            ))}
         </div>
       </div>
     </SectionWrapper>

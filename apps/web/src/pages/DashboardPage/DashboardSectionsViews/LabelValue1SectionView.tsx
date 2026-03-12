@@ -30,10 +30,10 @@ export function LabelValue1SectionView({
                     )}
                   </div>
                   <div>
-                    <p className='text-sm app-theme-muted'>{entry.label}</p>
-                    <p className='font-semibold app-theme-card-title'>
-                      {entry.value}
+                    <p className='text-sm font-bold app-theme-card-title'>
+                      {entry.label}
                     </p>
+                    <p className='text-sm app-theme-muted'>{entry.value}</p>
                   </div>
                 </CardContent>
               </Card>

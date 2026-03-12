@@ -43,7 +43,7 @@ export function ExperienceSectionView({ section }: ExperienceSectionViewProps) {
                               </p>
                             </div>
                             <div className='flex flex-col sm:items-end gap-1 text-sm app-theme-muted'>
-                              <span className='flex items-center gap-1'>
+                              <span className='flex items-center font-semibold gap-1'>
                                 <Calendar className='h-3 w-3' />
                                 {exp.duration.from} - {exp.duration.to}
                               </span>
