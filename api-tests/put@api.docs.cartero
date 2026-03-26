@@ -1,0 +1,14 @@
+version = 1
+url = "http://localhost:8787/api/docs?doc-id=8a729896"
+method = "PUT"
+
+[body]
+type = "raw"
+format = "json"
+body = '''
+{
+  "data": "this is some updated data",
+  "mimeType": "text/plain",
+  "fileName": "hello.txt",
+  "encoding": "base64"
+}'''

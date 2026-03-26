@@ -1,0 +1,18 @@
+version = 1
+url = "http://localhost:8787/api/docs"
+method = "POST"
+
+[body]
+type = "raw"
+format = "json"
+body = '''
+{
+  "profileName": "profile-1",
+  "languageCode": "en",
+  "content": {
+    "data": "this is data",
+    "mimeType": "text/plain",
+    "fileName": "hello.txt",
+    "encoding": "base64"
+  }
+}'''

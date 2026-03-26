@@ -1,0 +1,3 @@
+version = 1
+url = "http://localhost:8787/api/docs?doc-id=459d46b1"
+method = "DELETE"
