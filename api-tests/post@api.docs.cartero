@@ -1,5 +1,5 @@
 version = 1
-url = "http://localhost:8787/api/docs"
+url = "{{HOST_URL}}/api/docs"
 method = "POST"
 
 [body]

@@ -1,3 +1,3 @@
 version = 1
-url = "http://localhost:8787/api/docs/metadata"
+url = "{{HOST_URL}}/api/docs/metadata"
 method = "GET"
