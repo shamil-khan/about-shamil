@@ -16,6 +16,7 @@
     "format": "turbo format",
     "format:check": "turbo format:check",
     "cleanup": "node scripts/cleanup.js",
+    "cleanup:root": "rm -rf node_modules .turbo .dist && pnpm install",
     "ai-context": "node scripts/ai-context.js",
     "ai-context:web": "node scripts/ai-context.js --path apps/web"
   },

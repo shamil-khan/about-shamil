@@ -3,6 +3,7 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "sourceMap": true,
     "types": ["./worker-configuration.d.ts"],
     "strict": true,
     "skipLibCheck": true,
