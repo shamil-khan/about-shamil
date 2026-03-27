@@ -2,6 +2,24 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch Brave",
+      "request": "launch",
+      "type": "chrome",
+      "url": "http://localhost:3311",
+      "webRoot": "${workspaceFolder}/apps/web",
+      "sourceMaps": true,
+      "runtimeExecutable": "/var/lib/flatpak/exports/bin/com.brave.Browser",
+      "runtimeArgs": [
+        "--remote-debugging-port=9222",
+        "--user-data-dir=${workspaceFolder}/.vscode/brave-debug-profile"
+      ],
+      "sourceMapPathOverrides": {
+        "webpack:///./src/*": "${webRoot}/src/*",
+        "brave-extension://*": "",
+        "/@fs/*": "*"
+      }
+    },
+    {
       "name": "Debug Wrangler",
       "type": "node",
       "request": "attach",

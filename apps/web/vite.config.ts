@@ -14,6 +14,7 @@ export default defineConfig({
   },
   build: {
     emptyOutDir: false, // Important for Wrangler stability
+    sourcemap: true,
   },
   plugins: [
     react({
