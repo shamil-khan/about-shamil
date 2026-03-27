@@ -12,7 +12,7 @@ export function AddtionalSectionView({ section }: AddtionalSectionViewProps) {
         {section.labels.map((item, index) => (
           <p key={index}>
             <span className='font-semibold cv-theme-heading'>{item.label}</span>{' '}
-            {item.value}
+            {item.value.replace(/<a[^>]*>(.*?)<\/a>/gi, '$1')}
           </p>
         ))}
       </div>
