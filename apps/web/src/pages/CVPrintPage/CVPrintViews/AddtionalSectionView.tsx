@@ -8,9 +8,9 @@ interface AddtionalSectionViewProps {
 export function AddtionalSectionView({ section }: AddtionalSectionViewProps) {
   return (
     <Section key={section.id} title={section.title}>
-      <div className='text-cv-small cv-theme-body space-y-0.5'>
+      <div className='text-cv-small cv-theme-body space-y-0.5 cv-split-container'>
         {section.labels.map((item, index) => (
-          <p key={index}>
+          <p key={index} className='cv-split-item'>
             <span className='font-semibold cv-theme-heading'>{item.label}</span>{' '}
             {item.value.replace(/<a[^>]*>(.*?)<\/a>/gi, '$1')}
           </p>

@@ -58,8 +58,8 @@
 
 .cv-print-sheet-content {
   position: absolute;
-  top: 24mm;
-  bottom: 18mm;
+  top: 20mm;
+  bottom: 14mm;
   left: 10mm;
   right: 10mm;
   overflow: hidden;
@@ -76,6 +76,45 @@
   color: #475569;
   font-size: 9pt;
   font-family: 'Roboto', sans-serif;
+}
+
+/* Reduce spacing for print to fit more content consistently between JS measurement and printed view */
+.cv-print-block .space-y-3 > * + * {
+  margin-top: 0.25rem !important;
+}
+
+.cv-print-block .cv-entry {
+  margin-bottom: 0.5rem !important;
+}
+
+.cv-print-block .mb-0\.5 {
+  margin-bottom: 0.125rem !important;
+}
+
+.cv-print-block .mb-1 {
+  margin-bottom: 0.25rem !important;
+}
+
+.cv-print-block .list-disc {
+  padding-left: 1rem !important;
+}
+
+.cv-print-block .leading-snug {
+  line-height: 1.2 !important;
+}
+
+/* Experience section specific adjustments */
+.cv-print-experience {
+  break-inside: auto;
+  page-break-inside: auto;
+}
+
+.cv-print-experience .cv-entry {
+  margin-bottom: 0.375rem !important;
+}
+
+.cv-print-experience .space-y-0\.5 > * + * {
+  margin-top: 0.125rem !important;
 }
 
 @media print {
@@ -162,6 +201,7 @@
     break-after: page;
     page-break-after: always;
     box-shadow: none !important;
+    overflow: hidden !important;
   }
 
   .cv-print-sheet:last-child {
@@ -181,10 +221,6 @@
     color: #475569;
   }
 
-  .cv-print-sheet-content {
-    overflow: hidden !important;
-  }
-
   .cv-print-sheet-footer {
     border-top: 1px solid #94a3b8;
     color: #475569;
@@ -197,13 +233,28 @@
   }
 
   .cv-section {
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: auto;
+    page-break-inside: auto;
+    orphans: 2;
+    widows: 2;
   }
 
   .cv-entry {
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: auto;
+    page-break-inside: auto;
+    orphans: 2;
+    widows: 2;
+  }
+
+  .cv-print-block {
+    break-inside: auto;
+    page-break-inside: auto;
+    break-before: auto;
+    page-break-before: auto;
+    break-after: auto;
+    page-break-after: auto;
+    orphans: 2;
+    widows: 2;
   }
 
   h3,

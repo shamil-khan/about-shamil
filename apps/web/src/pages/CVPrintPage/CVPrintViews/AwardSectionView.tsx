@@ -8,11 +8,11 @@ interface AwardSectionViewProps {
 export function AwardSectionView({ section }: AwardSectionViewProps) {
   return (
     <Section key={section.id} title='Honors & Awards'>
-      <div className='space-y-1'>
+      <div className='space-y-1 cv-split-container'>
         {section.labels.map((award, index) => (
           <div
             key={index}
-            className='flex justify-between items-baseline text-cv-small'>
+            className='flex justify-between items-baseline text-cv-small cv-split-item'>
             <div className='flex-1 pr-4'>
               <span className='font-semibold cv-theme-heading'>
                 {award.label}

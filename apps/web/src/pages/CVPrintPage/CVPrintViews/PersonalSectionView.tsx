@@ -22,7 +22,13 @@ export function PersonalSectionView({ section }: PersonalSectionViewProps) {
     <header className='text-center mb-4 cv-header'>
       {/* Name - Large Roboto font */}
       <h1 className='font-bold text-3xl cv-theme-heading mb-1 tracking-tight'>
-        {section.info.name}
+        <a
+          href={`https://about.shamil-khan.workers.dev/`}
+          target='_blank'
+          rel='noopener noreferrer'
+          className='no-underline'>
+          {section.info.name}
+        </a>
       </h1>
 
       {isRTL ? (
@@ -65,8 +71,8 @@ export function PersonalSectionView({ section }: PersonalSectionViewProps) {
                         isSeparator
                           ? 'text-[1.08rem] font-extrabold tracking-normal px-[0.04em]'
                           : isUpperCase
-                            ? 'text-[1.03rem] font-semibold'
-                            : 'text-[0.84rem] font-medium tracking-[0.09em]'
+                            ? 'text-[1.0rem] font-semibold'
+                            : 'text-[0.75rem] font-medium tracking-[0.001em]'
                       }>
                       {char.toUpperCase()}
                     </span>
@@ -89,17 +95,17 @@ export function PersonalSectionView({ section }: PersonalSectionViewProps) {
         <ContactItem
           icon={<Phone size={11} strokeWidth={2.05} />}
           text={section.info.phone}
+          isLink={`https://wa.me/${section.info.phone}`}
         />
         <Separator />
 
-        <span className='cv-theme-separator text-[0.72rem]'>|</span>
         <ContactItem
           icon={<Mail size={11} strokeWidth={2.05} />}
           text={section.info.email}
           isLink={`mailto:${section.info.email}`}
         />
-        <Separator />
-
+      </div>
+      <div className='flex flex-nowrap justify-center items-center gap-x-2 mt-2.5 whitespace-nowrap text-[0.78rem] leading-none cv-theme-subtext'>
         {socialBrands.length > 0 &&
           socialBrands.map((brand, index) => (
             <>
@@ -114,10 +120,13 @@ export function PersonalSectionView({ section }: PersonalSectionViewProps) {
                     strokeWidth={2.2}
                   />
                 }
-                text={brand.title}
-                isLink={brand.url}
+                text={
+                  brand.url
+                    ? brand.url.split(/\/(.*)/s)[1] || brand.url
+                    : brand.title
+                }
+                isLink={`https://${brand.url}`}
               />
-              <Separator />
             </>
           ))}
       </div>

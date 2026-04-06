@@ -88,7 +88,7 @@ class Authorization {
   public getUserId = () => this.user.userId;
 
   public static auth(c: Context<AppEnv>) {
-    return new Authorization(c, availableUser['testUser1']);
+    return new Authorization(c, availableUser['testUser']);
   }
 }
 export class DocumentApi {

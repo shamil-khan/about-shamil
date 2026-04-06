@@ -58,7 +58,7 @@ export function ExperienceSectionView({ section }: ExperienceSectionViewProps) {
                             {exp.highlights.map((highlight, hIndex) => (
                               <li
                                 key={hIndex}
-                                className='text-sm app-theme-muted flex items-start gap-2'>
+                                className='text-sm text-justify app-theme-muted flex items-start gap-2'>
                                 <span className='w-2 h-2 rounded-full app-theme-experience-bullet shrink-0 mt-1.5' />
                                 {highlight}
                               </li>

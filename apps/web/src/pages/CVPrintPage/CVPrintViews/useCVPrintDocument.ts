@@ -95,10 +95,138 @@ export function useCVPrintDocument({
       if (
         currentSheet.content.scrollHeight > currentSheet.content.clientHeight
       ) {
-        currentSheet.content.removeChild(clone);
-        currentSheet = createSheet();
-        sheets.push(currentSheet);
-        currentSheet.content.appendChild(clone);
+        const originalSplitContainer = block.querySelector(
+          '.cv-split-container',
+        );
+        if (originalSplitContainer) {
+          currentSheet.content.removeChild(clone);
+
+          let fitClone = block.cloneNode(true) as HTMLElement;
+          let fitSplit = fitClone.querySelector(
+            '.cv-split-container',
+          ) as HTMLElement;
+          fitSplit.innerHTML = '';
+          currentSheet.content.appendChild(fitClone);
+
+          const items = Array.from(block.querySelectorAll('.cv-split-item'));
+          let isFirstPageForBlock = true;
+
+          for (let i = 0; i < items.length; i++) {
+            const itemClone = items[i].cloneNode(true) as HTMLElement;
+            fitSplit.appendChild(itemClone);
+
+            if (
+              currentSheet.content.scrollHeight >
+              currentSheet.content.clientHeight
+            ) {
+              const originalSubContainer = items[i].querySelector(
+                '.cv-split-subcontainer',
+              );
+              if (originalSubContainer) {
+                fitSplit.removeChild(itemClone);
+
+                let subFitClone = items[i].cloneNode(true) as HTMLElement;
+                let subFitSplit = subFitClone.querySelector(
+                  '.cv-split-subcontainer',
+                ) as HTMLElement;
+                subFitSplit.innerHTML = '';
+                fitSplit.appendChild(subFitClone);
+
+                const subItems = Array.from(
+                  items[i].querySelectorAll('.cv-split-subitem'),
+                );
+
+                for (let j = 0; j < subItems.length; j++) {
+                  const subItemClone = subItems[j].cloneNode(
+                    true,
+                  ) as HTMLElement;
+                  subFitSplit.appendChild(subItemClone);
+
+                  if (
+                    currentSheet.content.scrollHeight >
+                    currentSheet.content.clientHeight
+                  ) {
+                    subFitSplit.removeChild(subItemClone);
+
+                    if (subFitSplit.children.length === 0) {
+                      fitSplit.removeChild(subFitClone);
+                    }
+
+                    if (fitSplit.children.length === 0) {
+                      currentSheet.content.removeChild(fitClone);
+                    } else {
+                      isFirstPageForBlock = false;
+                    }
+
+                    currentSheet = createSheet();
+                    sheets.push(currentSheet);
+
+                    fitClone = block.cloneNode(true) as HTMLElement;
+                    fitSplit = fitClone.querySelector(
+                      '.cv-split-container',
+                    ) as HTMLElement;
+                    fitSplit.innerHTML = '';
+
+                    if (!isFirstPageForBlock) {
+                      const header = fitClone.querySelector('.cv-header');
+                      if (header) {
+                        header.remove();
+                      }
+                    }
+
+                    subFitClone = items[i].cloneNode(true) as HTMLElement;
+                    subFitSplit = subFitClone.querySelector(
+                      '.cv-split-subcontainer',
+                    ) as HTMLElement;
+                    subFitSplit.innerHTML = '';
+
+                    const subHeader =
+                      subFitClone.querySelector('.cv-sub-header');
+                    if (subHeader && j > 0) {
+                      subHeader.remove();
+                    }
+
+                    subFitSplit.appendChild(subItemClone);
+                    fitSplit.appendChild(subFitClone);
+                    currentSheet.content.appendChild(fitClone);
+                  }
+                }
+              } else {
+                fitSplit.removeChild(itemClone);
+
+                if (fitSplit.children.length === 0) {
+                  currentSheet.content.removeChild(fitClone);
+                } else {
+                  isFirstPageForBlock = false;
+                }
+
+                currentSheet = createSheet();
+                sheets.push(currentSheet);
+
+                fitClone = block.cloneNode(true) as HTMLElement;
+                fitSplit = fitClone.querySelector(
+                  '.cv-split-container',
+                ) as HTMLElement;
+                fitSplit.innerHTML = '';
+
+                if (!isFirstPageForBlock) {
+                  const header = fitClone.querySelector('.cv-header');
+                  if (header) {
+                    header.remove();
+                  }
+                }
+
+                fitSplit.appendChild(itemClone);
+                currentSheet.content.appendChild(fitClone);
+              }
+            }
+          }
+        } else {
+          currentSheet.content.removeChild(clone);
+          currentSheet = createSheet();
+          sheets.push(currentSheet);
+          currentSheet.content.appendChild(clone);
+        }
       }
     }
 
